@@ -65,7 +65,7 @@ const NavSideBar = () => {
   return (
     <>
       <div
-        className={`h-screen w-full md:w-2/3 lg:w-1/3 bg-white border-r border-gray-200 flex flex-col fixed z-50
+        className={`h-screen w-full md:w-2/3 lg:w-1/3 bg-white border-r border-gray-200 flex flex-col fixed z-[1100]
         transform transition-transform duration-700 
         ${open ? "-translate-x-[85%]" : "translate-x-0"}`}
       >
@@ -74,7 +74,13 @@ const NavSideBar = () => {
           className="px-6 py-4 text-2xl font-bold text-blue-900 flex items-center justify-between"
         >
           <>
-            <Image src={"/roadWise.png"} alt="logo" width={100} height={100} className="boder-2 border-blue-950" />
+            <Image
+              src={"/roadWise.png"}
+              alt="logo"
+              width={100}
+              height={100}
+              className="boder-2 border-blue-950"
+            />
             {/* Road Wise */}
           </>
           {open ? <FiSidebar /> : <FiX />}
@@ -107,7 +113,7 @@ const NavSideBar = () => {
       {!open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 bg-gray-500/50  z-30 transition-opacity duration-300"
+          className="fixed inset-0 bg-gray-500/50  z-[1050] transition-opacity duration-300"
         />
       )}
     </>

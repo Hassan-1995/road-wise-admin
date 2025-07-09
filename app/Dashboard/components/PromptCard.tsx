@@ -27,7 +27,7 @@ const PromptCard = ({
   const gradient = colorMap[color];
   return (
     <div
-      className={`bg-gradient-to-r ${gradient} p-5 rounded-2xl w-80 text-white flex-shrink-0`}
+      className={`bg-gradient-to-r ${gradient} p-5 rounded-2xl w-80 text-white flex-shrink-0 mb-3`}
     >
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-sm">{title}</h1>
