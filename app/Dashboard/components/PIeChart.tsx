@@ -21,7 +21,7 @@ type PieChartProps = {
 
 const COLORS = ["#facc15", "#3b82f6", "#22c55e", "#ef4444", "#f97316"]; // Tailwind Yellow, Blue, Green, Red, Orange
 
-const DeliveryStatusPieChart = ({ deliveryStatuses }: PieChartProps) => {
+const PieChart = ({ deliveryStatuses }: PieChartProps) => {
   const data = [
     { name: "Pending", value: deliveryStatuses.pending },
     { name: "In Transit", value: deliveryStatuses.inTransit },
@@ -31,7 +31,8 @@ const DeliveryStatusPieChart = ({ deliveryStatuses }: PieChartProps) => {
   ];
 
   return (
-    <div className="w-full h-[250px]">
+    // <div className="w-full h-[250px]">
+    <div className="w-full h-full overflow-hidden bg-zinc-50">
       <ResponsiveContainer width="100%" height={250}>
         <RePieChart>
           <Pie
@@ -60,4 +61,4 @@ const DeliveryStatusPieChart = ({ deliveryStatuses }: PieChartProps) => {
   );
 };
 
-export default DeliveryStatusPieChart;
+export default PieChart;

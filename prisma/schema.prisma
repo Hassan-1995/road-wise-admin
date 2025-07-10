@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------
+// USERS
+// -----------------------
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  role         Role
+  email        String?  @unique
+  phone        String?
+  passwordHash String?
+  createdAt    DateTime @default(now())
+
+  // driver Driver? @relation(fields: [id], references: [userId])
+  driver Driver?
+}
+
+enum Role {
+  admin
+  driver
+  store
+}
+
+// -----------------------
+// DRIVERS
+// -----------------------
+
+model Driver {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  user          User      @relation(fields: [userId], references: [id])
+  cnicNumber    String    @unique
+  gender        Gender?
+  residenceArea String?
+  licenseNumber String?
+  dateOfBirth   DateTime?
+  createdAt     DateTime  @default(now())
+
+  vehicles       Vehicle[]
+  dropoutAssigns DropoutAssignment[]
+  liveTrackers   LiveTracker[]
+  trips          Trip[]
+  fuelLogs       FuelLog[]
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+// -----------------------
+// VEHICLES
+// -----------------------
+
+model Vehicle {
+  id                 Int           @id @default(autoincrement())
+  vehicleId          String        @unique
+  makeModel          String
+  registrationNumber String        @unique
+  status             VehicleStatus @default(Available)
+  currentLocation    String?
+  latitude           Decimal?      @db.Decimal(10, 8)
+  longitude          Decimal?      @db.Decimal(11, 8)
+  assignedDriverId   Int?
+  assignedDriver     Driver?       @relation(fields: [assignedDriverId], references: [id])
+  createdAt          DateTime      @default(now())
+
+  liveTrackers LiveTracker[]
+  trips        Trip[]
+  fuelLogs     FuelLog[]
+}
+
+enum VehicleStatus {
+  Available
+  In_Transit
+  Under_Maintenance
+  Idle
+}
+
+// -----------------------
+// STORES
+// -----------------------
+
+model Store {
+  id        Int      @id @default(autoincrement())
+  storeName String
+  address   String?
+  latitude  Decimal  @db.Decimal(10, 8)
+  longitude Decimal  @db.Decimal(11, 8)
+  createdAt DateTime @default(now())
+
+  dropoutAssigns DropoutAssignment[]
+  trips          Trip[]
+}
+
+// -----------------------
+// DROPOUT ASSIGNMENTS
+// -----------------------
+
+model DropoutAssignment {
+  id         Int           @id @default(autoincrement())
+  driverId   Int
+  storeId    Int
+  assignedAt DateTime      @default(now())
+  status     DropoutStatus @default(Pending)
+
+  driver Driver @relation(fields: [driverId], references: [id])
+  store  Store  @relation(fields: [storeId], references: [id])
+}
+
+enum DropoutStatus {
+  Pending
+  Completed
+  Cancelled
+}
+
+// -----------------------
+// LIVE TRACKER
+// -----------------------
+
+model LiveTracker {
+  id         Int           @id @default(autoincrement())
+  vehicleId  Int
+  driverId   Int
+  latitude   Decimal       @db.Decimal(10, 8)
+  longitude  Decimal       @db.Decimal(11, 8)
+  status     TrackerStatus @default(Active)
+  recordedAt DateTime      @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+}
+
+enum TrackerStatus {
+  Active
+  Break
+}
+
+// -----------------------
+// TRIPS
+// -----------------------
+
+model Trip {
+  id         Int        @id @default(autoincrement())
+  vehicleId  Int?
+  driverId   Int?
+  storeId    Int?
+  startTime  DateTime?
+  endTime    DateTime?
+  distanceKm Decimal?   @db.Decimal(8, 2)
+  notes      String?
+  status     TripStatus @default(In_Progress)
+  createdAt  DateTime   @default(now())
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+  driver  Driver?  @relation(fields: [driverId], references: [id])
+  store   Store?   @relation(fields: [storeId], references: [id])
+}
+
+enum TripStatus {
+  In_Progress
+  Completed
+  Cancelled
+}
+
+// -----------------------
+// FUEL LOGS
+// -----------------------
+
+model FuelLog {
+  id         Int      @id @default(autoincrement())
+  vehicleId  Int?
+  driverId   Int?
+  refuelDate DateTime
+  liters     Decimal  @db.Decimal(8, 2)
+  costRs     Decimal  @db.Decimal(10, 2)
+  odometerKm Decimal  @db.Decimal(10, 2)
+  location   String?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+  driver  Driver?  @relation(fields: [driverId], references: [id])
+}
