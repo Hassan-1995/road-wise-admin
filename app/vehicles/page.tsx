@@ -1,13 +1,15 @@
-import React from "react";
-import VehicleRegisteredTable from "./components/VehicleRegisteredTable";
-import { prisma } from "@/lib/client";
 import { Vehicle } from "@prisma/client";
+import VehicleRegisteredTable from "./components/VehicleRegisteredTable";
 
 const VehiclesPage = async () => {
   let vehicles: Vehicle[] = [];
 
   try {
-    vehicles = await prisma.vehicle.findMany();
+    // vehicles = await prisma.vehicle.findMany();
+    const res = await fetch("http://localhost:3000/api/vehicle", {
+      cache: "no-store", // Ensures fresh data every request
+    });
+    vehicles = await res.json();
   } catch (error) {
     console.error("Error fetching vehicles:", error);
     // You could also return an error component or message here

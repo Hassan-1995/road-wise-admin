@@ -69,13 +69,6 @@ const VehicleRegisteredTable = ({
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Status: </span>
             <span className={""}>{getStatusIcon(vehicle.status)}</span>
-            {/* <span
-              className={`text-white font-semibold px-2 py-1 rounded-full border ${getStatusBadgeColor(
-                vehicle.status
-              )}`}
-            >
-              {vehicle.status}
-            </span> */}
           </div>
 
           {/* Current Location */}
