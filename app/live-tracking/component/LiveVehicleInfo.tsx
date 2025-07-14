@@ -8,7 +8,7 @@ type LiveVehicleInfoProps = {
     status: "Active" | "Break";
     makeModel: string;
     numberPlate: string;
-    recordedTime: string;
+    recordedTime: Date;
   }[];
 };
 
@@ -19,7 +19,6 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
         return <MdCheckCircle className="text-green-500 w-5 h-5" />;
       case "Break":
         return <MdCancel className="text-red-500 w-5 h-5" />;
-
       default:
         return <h1>N/A</h1>;
     }
@@ -93,7 +92,7 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
           {/* Vehicle Live Position Recorded Time */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Time Stamp:</span>
-            {formatTime(vehicle.recordedTime)}
+            {formatTime(String(vehicle.recordedTime))}
           </div>
         </div>
       ))}

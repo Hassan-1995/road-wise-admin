@@ -1,7 +1,6 @@
 import { Driver, LiveTracker, User, Vehicle } from "@prisma/client";
-import React from "react";
-import LiveMapPositions from "./component/LiveMapPositions";
 import { LatLngExpression } from "leaflet";
+import WrapperLiveMapPosition from "../components/WrapperLiveMapPosition";
 import LiveVehicleInfo from "./component/LiveVehicleInfo";
 
 type LivePositions = LiveTracker & {
@@ -49,7 +48,7 @@ const LivePositions = async () => {
       <div className="w-full max-w-7xl mx-auto p-4 space-y-10">
         {/* <div className="relative w-full h-[calc(100vh-120px)] rounded-xl shadow overflow-hidden"> */}
         <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden">
-          <LiveMapPositions locations={formattedPositions} />
+          <WrapperLiveMapPosition locations={formattedPositions} />
         </div>
         <div className="relative w-full h-auto rounded-xl shadow overflow-hidden">
           <LiveVehicleInfo vehicleInfo={formattedInformation} />
