@@ -1,5 +1,8 @@
 import { Driver, Store, User, Vehicle } from "@prisma/client";
 import DropDown from "../component/DropDown";
+import AllocateButton from "./AllocateButton";
+import CreateTripButton from "./CreateTripButton";
+import Message from "./Message";
 
 type DriverTripAllocationProps = {
   params: { driverManagementID: string };
@@ -82,12 +85,16 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
         </div>
       </div>
 
-      <div className="mb-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <DropDown options={formattedVehicles} label="Select Vehicle" />
-      </div>
-      <div>
-        <DropDown options={formattedStores} label="Select Dropoff" />
-      </div>
+        <div className="flex md:justify-end sm:justify-start items-end">
+          <CreateTripButton driverID={driverInfo?.id} />
+        </div>
+      </section>
+      <Message />
+      <DropDown options={formattedStores} label="Select Dropoff" />
+
+      <AllocateButton driverInfo={driverInfo} />
     </div>
   );
 };
