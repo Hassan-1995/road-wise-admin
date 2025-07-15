@@ -89,7 +89,7 @@ const DriverTripTable = ({ trips }: DriverTripTableProps) => {
             <span className="lg:hidden font-medium">Reg #: </span>
             {trip.numberPlate ?? "N/A"}
           </div>
-          <div className="flex lg:block justify-between lg:w-2/12 p-3 text-sm text-gray-700">
+          <div className="whitespace-pre-wrap flex lg:block justify-between lg:w-2/12 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Store: </span>
             {trip.store ?? "N/A"}
           </div>

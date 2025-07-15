@@ -1,4 +1,4 @@
-import { Driver, Store, Trip, User, Vehicle } from "@prisma/client";
+import { Driver, Route, Store, Trip, User, Vehicle } from "@prisma/client";
 import React from "react";
 import DriverTripTable from "../component/DriverTripTable";
 
@@ -10,8 +10,10 @@ type Trips = Trip & {
   driver: Pick<Driver, "userId"> & {
     user: Pick<User, "name">;
   };
+  routes: (Pick<Route, "storeId"> & {
+    store: Pick<Store, "storeName" | "address">;
+  })[];
   vehicle: Pick<Vehicle, "makeModel" | "registrationNumber">;
-  store: Pick<Store, "storeName" | "address">;
 };
 
 const DriverLogs = async ({ params: { logID } }: DriverLogsProps) => {
@@ -31,7 +33,10 @@ const DriverLogs = async ({ params: { logID } }: DriverLogsProps) => {
     name: t.driver.user.name,
     vehicle: t.vehicle.makeModel,
     numberPlate: t.vehicle.registrationNumber,
-    store: t.store.storeName,
+    store:
+      t.routes.length > 0
+        ? t.routes.map((r) => r.store.storeName).join("\n")
+        : "N/A",
     begin: t.startTime,
     finish: t.endTime,
     distance: t.distanceKm ? t.distanceKm.toString() : null,

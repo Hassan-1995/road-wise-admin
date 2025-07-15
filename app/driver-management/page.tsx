@@ -1,5 +1,4 @@
 import Drivers from "./component/Drivers";
-// import RegisterDriver from "./component/RegisterDriver";
 import { Driver, User } from "@prisma/client";
 
 type DriverWithUser = Driver & {
@@ -36,7 +35,6 @@ const DriverManagement = async () => {
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">Drivers</h1>
       <div className="flex gap-4 overflow-x-auto py-2 mb-3">
-        {/* <RegisterDriver drivers={formattedDrivers} /> */}
         <Drivers drivers={formattedDrivers} />
       </div>
     </div>

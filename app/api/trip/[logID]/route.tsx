@@ -30,12 +30,23 @@ export async function GET(
             registrationNumber: true,
           },
         },
-        store: {
+        routes: {
           select: {
-            storeName: true,
-            address: true,
+            storeId: true,
+            store: {
+              select: {
+                storeName: true,
+              },
+            },
           },
         },
+
+        // store: {
+        //   select: {
+        //     storeName: true,
+        //     address: true,
+        //   },
+        // },
       },
     });
 
