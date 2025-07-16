@@ -101,18 +101,6 @@ const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
 
   return (
     <div className="flex items-center space-x-3">
-      <button
-        onClick={handleClick}
-        disabled={loading}
-        className={`cursor-pointer px-4 py-2 rounded-md font-semibold transition duration-200 ${
-          loading
-            ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-            : // : "bg-blue-600 text-white hover:bg-blue-700"
-              "text-blue-900  hover:text-blue-700"
-        }`}
-      >
-        {loading ? <span className="animate-pulse">Allocating...</span> : label}
-      </button>
       {message && (
         <p
           className={`text-sm ${
@@ -126,6 +114,18 @@ const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
           {message}
         </p>
       )}
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className={`cursor-pointer px-4 py-2 rounded-md font-semibold transition duration-200 ${
+          loading
+            ? "bg-gray-300 text-gray-700 cursor-not-allowed"
+            : // : "bg-blue-600 text-white hover:bg-blue-700"
+              "text-blue-900  hover:text-blue-700"
+        }`}
+      >
+        {loading ? <span className="animate-pulse">Allocating...</span> : label}
+      </button>
     </div>
   );
 };

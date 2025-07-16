@@ -1,7 +1,7 @@
 "use client";
 import useLocalStorageState from "use-local-storage-state";
 
-const Message = () => {
+const TripMessage = () => {
   const [tripId] = useLocalStorageState<number | null>("currentTripId", {
     defaultValue: null,
   });
@@ -21,7 +21,7 @@ const Message = () => {
         <>
           🚚{" "}
           <span className="ml-1">
-            A delivery trip is currently in progress.
+            A delivery trip # {tripId} is currently in progress.
           </span>
         </>
       ) : (
@@ -31,4 +31,4 @@ const Message = () => {
   );
 };
 
-export default Message;
+export default TripMessage;
