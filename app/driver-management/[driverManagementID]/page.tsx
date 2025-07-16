@@ -3,6 +3,7 @@ import DropDown from "../component/DropDown";
 import AllocateButton from "./AllocateButton";
 import CreateTripButton from "./CreateTripButton";
 import Message from "./Message";
+import WrapperDropoff from "./WrapperDropoff";
 
 type DriverTripAllocationProps = {
   params: { driverManagementID: string };
@@ -53,6 +54,7 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
   console.log("DRIVER INFO: ", driverInfo);
 
   return (
+    
     <div className="p-4 max-w-2xl ">
       <h1 className="text-xl sm:text-2xl font-bold mb-6 text-gray-800">
         Allocation of Route
@@ -92,9 +94,13 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
         </div>
       </section>
       <Message />
-      <DropDown options={formattedStores} label="Select Dropoff" />
 
-      <AllocateButton driverInfo={driverInfo} />
+      <section>
+        <WrapperDropoff>
+          <DropDown options={formattedStores} label="Select Dropoff" />
+          <AllocateButton driverInfo={driverInfo} />
+        </WrapperDropoff>
+      </section>
     </div>
   );
 };

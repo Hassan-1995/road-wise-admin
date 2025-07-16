@@ -40,7 +40,6 @@ const CreateTripButton = ({
 
       const data = await response.json();
       localStorage.setItem("currentTripId", data.tripId);
-      //   setSuccessMessage(`✅ Trip created successfully (ID: ${data.tripId})`);
       setSuccessMessage(`✅ Trip created successfully`);
     } catch (error) {
       console.error(error);
@@ -59,10 +58,7 @@ const CreateTripButton = ({
         onClick={handleClick}
         disabled={loading}
         className={`cursor-pointer px-4 py-2 rounded-md font-semibold transition ${
-          loading
-            ? "cursor-not-allowed"
-            : // : "bg-blue-600 text-white hover:bg-blue-700"
-              "text-blue-900  hover:text-blue-700"
+          loading ? "cursor-not-allowed" : "text-blue-900  hover:text-blue-700"
         }`}
       >
         {loading ? (

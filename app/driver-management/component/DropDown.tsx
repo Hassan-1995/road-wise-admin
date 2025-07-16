@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import useLocalStorageState from "use-local-storage-state";
 
 type OptionType<T> = {
   id: number;
@@ -18,52 +19,16 @@ const DropDown = <T,>({
   options,
 }: // onSelect,
 DropDownProps<T>) => {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  // const [selectedId, setSelectedId] = useState<number | null>(() => {
-  //   const stored = localStorage.getItem(label);
-  //   return stored !== null ? Number(stored) : null;
-  // });
-
-  // useEffect(() => {
-  //   const stored = localStorage.getItem(label);
-  //   if (stored !== null) {
-  //     const num = Number(stored);
-  //     setSelectedId(Number.isNaN(num) ? null : num);
-  //   }
-  // }, [label]);
-
-  useEffect(() => {
-    // Set initial values on mount
-    // setSelectedId(localStorage.getItem(label));
-    setSelectedId(Number(localStorage.getItem(label)));
-
-    // Function to update from localStorage
-    const updateFromLocalStorage = () => {
-      setSelectedId(Number(localStorage.getItem(label)));
-    };
-
-    window.addEventListener("storage", updateFromLocalStorage);
-
-    const interval = setInterval(updateFromLocalStorage, 500);
-
-    return () => {
-      window.removeEventListener("storage", updateFromLocalStorage);
-      clearInterval(interval);
-    };
-  }, [label]);
-
-  // setSelectedId();
-  // const selectedOption =
-  //   options.find((option) => option.id === selectedId) ?? null;
+  const [selectedId, setSelectedId] = useLocalStorageState<number | null>(
+    label,
+    {
+      defaultValue: null,
+    }
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value ? parseInt(e.target.value) : null;
     setSelectedId(id);
-    // if (onSelect) {
-    //   const selected = options.find((option) => option.id === id) ?? null;
-    //   onSelect(selected);
-    // }
 
     localStorage.setItem(label, parseInt(e.target.value, 10).toString());
   };

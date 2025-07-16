@@ -1,30 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import useLocalStorageState from "use-local-storage-state";
 
 const Message = () => {
-  const [tripId, setTripId] = useState<string | null>(null);
-  const [vehicleId, setVehicleId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Set initial values on mount
-    setTripId(localStorage.getItem("currentTripId"));
-    setVehicleId(localStorage.getItem("Select Vehicle"));
-
-    // Function to update from localStorage
-    const updateFromLocalStorage = () => {
-      setTripId(localStorage.getItem("currentTripId"));
-      setVehicleId(localStorage.getItem("Select Vehicle"));
-    };
-
-    window.addEventListener("storage", updateFromLocalStorage);
-
-    const interval = setInterval(updateFromLocalStorage, 500);
-
-    return () => {
-      window.removeEventListener("storage", updateFromLocalStorage);
-      clearInterval(interval);
-    };
-  }, []);
+  const [tripId] = useLocalStorageState<number | null>("currentTripId", {
+    defaultValue: null,
+  });
+  const [vehicleId] = useLocalStorageState<number | null>("Select Vehicle", {
+    defaultValue: null,
+  });
 
   return (
     <div
