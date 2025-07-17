@@ -56,7 +56,10 @@ type AllocateButtonProps = {
   driverInfo: DriverInfo | null;
 };
 
-const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
+const AllocateButton = ({
+  label = "Allocate",
+  driverInfo,
+}: AllocateButtonProps) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -69,9 +72,14 @@ const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
       return;
     }
 
+    // const formattedData = {
+    //   tripId: Number(tripID),
+    //   storeId: Number(storeID),
+    // };
     const formattedData = {
       tripId: Number(tripID),
       storeId: Number(storeID),
+      driverId: Number(driverInfo?.id),
     };
 
     console.log("Data to put: ", formattedData);
@@ -80,7 +88,8 @@ const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
     setMessage(null);
 
     try {
-      const response = await fetch("/api/route", {
+      // const response = await fetch("/api/route", {
+      const response = await fetch("/api/dropout-assignment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formattedData),
@@ -124,6 +133,7 @@ const AllocateButton = ({ label = "Allocate" }: AllocateButtonProps) => {
               "text-blue-900  hover:text-blue-700"
         }`}
       >
+        {/* <h1>{driverInfo?.id}</h1> */}
         {loading ? <span className="animate-pulse">Allocating...</span> : label}
       </button>
     </div>

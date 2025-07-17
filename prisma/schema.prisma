@@ -117,13 +117,17 @@ model Store {
 
 model DropoutAssignment {
   id         Int           @id @default(autoincrement())
+  tripId     Int
   driverId   Int
   storeId    Int
   assignedAt DateTime      @default(now())
   status     DropoutStatus @default(Pending)
 
+  trip   Trip   @relation(fields: [tripId], references: [id])
   driver Driver @relation(fields: [driverId], references: [id])
   store  Store  @relation(fields: [storeId], references: [id])
+
+  @@unique([tripId, storeId]) // ✅ enforce uniqueness like Route
 }
 
 enum DropoutStatus {
@@ -131,6 +135,23 @@ enum DropoutStatus {
   Completed
   Cancelled
 }
+
+// model DropoutAssignment {
+//   id         Int           @id @default(autoincrement())
+//   driverId   Int
+//   storeId    Int
+//   assignedAt DateTime      @default(now())
+//   status     DropoutStatus @default(Pending)
+
+//   driver Driver @relation(fields: [driverId], references: [id])
+//   store  Store  @relation(fields: [storeId], references: [id])
+// }
+
+// enum DropoutStatus {
+//   Pending
+//   Completed
+//   Cancelled
+// }
 
 // -----------------------
 // LIVE TRACKER
@@ -170,11 +191,12 @@ model Trip {
   status     TripStatus @default(In_Progress)
   createdAt  DateTime   @default(now())
 
-  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
-  driver  Driver?  @relation(fields: [driverId], references: [id])
+  vehicle        Vehicle?            @relation(fields: [vehicleId], references: [id])
+  driver         Driver?             @relation(fields: [driverId], references: [id])
   // store   Store?   @relation(fields: [storeId], references: [id])
   // Route   Route[]
-  routes  Route[]
+  routes         Route[]
+  dropoutAssigns DropoutAssignment[]
 }
 
 enum TripStatus {

@@ -45,7 +45,7 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
   const fetchRoute = async () => {
     if (!tripId) return;
     try {
-      const res = await fetch(`/api/route/${tripId}`, {
+      const res = await fetch(`/api/dropout-assignment/${tripId}`, {
         cache: "no-store",
       });
 
