@@ -14,6 +14,13 @@ export async function GET(
       where: {
         tripId: parseInt(ID),
       },
+      include: {
+        store: {
+          select: {
+            storeName: true,
+          },
+        },
+      },
     });
     if (!dropoutAssignmentInfo) {
       return NextResponse.json(

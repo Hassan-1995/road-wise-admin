@@ -1,10 +1,14 @@
 "use client";
-import { Route, Store, Vehicle } from "@prisma/client";
+import { DropoutAssignment, Route, Store, Vehicle } from "@prisma/client";
 import React, { useCallback, useEffect, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
 type DetailMessageProps = {
   driverName: string | undefined;
+};
+
+type DropoutAssignmentWitStoreName = DropoutAssignment & {
+  store: Pick<Store, "storeName">;
 };
 
 const DetailMessage = ({ driverName }: DetailMessageProps) => {
@@ -16,7 +20,8 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
   });
 
   const [vehicleData, setVehicleData] = useState<Vehicle>();
-  const [routeData, setRouteData] = useState<Route[]>();
+  // const [routeData, setRouteData] = useState<Route[]>();
+  const [routeData, setRouteData] = useState<DropoutAssignmentWitStoreName[]>();
   const [storeDataMap, setStoreDataMap] = useState<Record<number, Store>>({});
 
   useEffect(() => {
@@ -135,7 +140,8 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
               className="p-3 rounded-lg bg-white border border-blue-200 shadow-sm flex justify-between items-center"
             >
               <h1 className="text-blue-800 font-medium">
-                {storeDataMap[item.storeId]?.storeName ?? "Loading..."}
+                {/* {storeDataMap[item.storeId]?.storeName ?? "Loading..."} */}
+                {item.store.storeName ?? "Loading..."}
               </h1>
               <span className="text-sm text-blue-600">
                 Store ID: {item.storeId}
