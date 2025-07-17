@@ -114,7 +114,9 @@
 // export default FuelLogTable;
 
 "use client";
-import React, { useEffect, useState } from "react";
+import PromptCard from "@/app/Dashboard/components/PromptCard";
+import { useEffect, useState } from "react";
+import { LuClipboardList, LuFuel, LuWallet } from "react-icons/lu";
 // import { MdCancel, MdCheckCircle } from "react-icons/md";
 
 type FuelLogTableProps = {
@@ -204,6 +206,43 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
 
   return (
     <div className="w-full relative">
+      <div className="flex gap-4 overflow-x-auto py-2 mb-3">
+        <PromptCard
+          title={"Total Fuel Logs"}
+          info={String(filterData.length)}
+          description={"Fuel entries logged this month."}
+          icon={LuClipboardList}
+          color={"blue"}
+        />
+        <PromptCard
+          title={"Total Cost"}
+          info={
+            "Rs: " +
+            filterData
+              .reduce((acc, item) => {
+                return acc + Number(item.cost);
+              }, 0)
+              .toLocaleString()
+          }
+          description={"Total fuel spending this month."}
+          icon={LuWallet}
+          color={"green"}
+        />
+        <PromptCard
+          title={"Total Liters"}
+          info={
+            filterData
+              .reduce((acc, item) => {
+                return acc + Number(item.liters);
+              }, 0)
+              .toLocaleString() + " L"
+          }
+          description={"Liters refueled this month."}
+          icon={LuFuel}
+          color={"yellow"}
+        />
+      </div>
+
       {/* Month Selector */}
       <div className="relative inline-block mb-4">
         <button

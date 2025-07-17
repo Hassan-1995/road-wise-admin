@@ -13,7 +13,7 @@ type PromptCardProps = {
   title: string;
   info: string;
   description: string;
-  icon: IconType;
+  icon?: IconType;
   color?: ColorKey;
 };
 
