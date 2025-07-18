@@ -78,7 +78,7 @@ const DriverTripTable = ({ trips }: DriverTripTableProps) => {
       {trips.map((trip) => (
         <Link
           key={trip.id}
-          href={`/trips/${trip.id}`}
+          href={`/path-comparison/${trip.id}`}
           className="w-full flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
         >
           <div className="flex lg:block justify-between lg:w-1/12 p-3 text-sm text-gray-700">

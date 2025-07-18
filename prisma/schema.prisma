@@ -136,23 +136,6 @@ enum DropoutStatus {
   Cancelled
 }
 
-// model DropoutAssignment {
-//   id         Int           @id @default(autoincrement())
-//   driverId   Int
-//   storeId    Int
-//   assignedAt DateTime      @default(now())
-//   status     DropoutStatus @default(Pending)
-
-//   driver Driver @relation(fields: [driverId], references: [id])
-//   store  Store  @relation(fields: [storeId], references: [id])
-// }
-
-// enum DropoutStatus {
-//   Pending
-//   Completed
-//   Cancelled
-// }
-
 // -----------------------
 // LIVE TRACKER
 // -----------------------
@@ -191,12 +174,14 @@ model Trip {
   status     TripStatus @default(In_Progress)
   createdAt  DateTime   @default(now())
 
-  vehicle        Vehicle?            @relation(fields: [vehicleId], references: [id])
-  driver         Driver?             @relation(fields: [driverId], references: [id])
+  vehicle         Vehicle?            @relation(fields: [vehicleId], references: [id])
+  driver          Driver?             @relation(fields: [driverId], references: [id])
   // store   Store?   @relation(fields: [storeId], references: [id])
   // Route   Route[]
-  routes         Route[]
-  dropoutAssigns DropoutAssignment[]
+  routes          Route[]
+  dropoutAssigns  DropoutAssignment[]
+  OptimisedPath   OptimisedPath?
+  ActualPathPoint ActualPathPoint[]
 }
 
 enum TripStatus {
@@ -239,4 +224,36 @@ model FuelLog {
 
   vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
   driver  Driver?  @relation(fields: [driverId], references: [id])
+}
+
+// -----------------------
+// OPTIMISED PATH
+// -----------------------
+
+model OptimisedPath {
+  id         Int      @id @default(autoincrement())
+  tripId     Int      @unique
+  pathPoints Json
+  createdAt  DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id])
+
+  @@index([tripId])
+}
+
+// -----------------------
+// ACTUAL PATH POINT
+// -----------------------
+
+model ActualPathPoint {
+  id         Int      @id @default(autoincrement())
+  tripId     Int
+  latitude   Decimal  @db.Decimal(10, 8)
+  longitude  Decimal  @db.Decimal(11, 8)
+  recordedAt DateTime @default(now())
+  sequence   Int?
+
+  trip Trip @relation(fields: [tripId], references: [id])
+
+  @@index([tripId])
 }
