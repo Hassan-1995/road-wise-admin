@@ -1,6 +1,6 @@
 "use client";
-import { DropoutAssignment, Route, Store, Vehicle } from "@prisma/client";
-import React, { useCallback, useEffect, useState } from "react";
+import { DropoutAssignment, Store, Vehicle } from "@prisma/client";
+import { useEffect, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
 type DetailMessageProps = {
@@ -20,9 +20,7 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
   });
 
   const [vehicleData, setVehicleData] = useState<Vehicle>();
-  // const [routeData, setRouteData] = useState<Route[]>();
   const [routeData, setRouteData] = useState<DropoutAssignmentWitStoreName[]>();
-  const [storeDataMap, setStoreDataMap] = useState<Record<number, Store>>({});
 
   useEffect(() => {
     fetchVehicle();
@@ -65,37 +63,6 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
       console.error("Error fetching data:", error);
     }
   };
-
-  const fetchStore = useCallback(
-    async (id: number) => {
-      if (storeDataMap[id]) return;
-      try {
-        const res = await fetch(`/api/store/${id}`, { cache: "no-store" });
-        if (!res.ok) {
-          console.error(`Failed to fetch store data for storeId ${id}`);
-          return;
-        }
-        const data: Store = await res.json();
-        setStoreDataMap((prev) => ({
-          ...prev,
-          [id]: data,
-        }));
-      } catch (error) {
-        console.error("Error fetching store data:", error);
-      }
-    },
-    [storeDataMap]
-  );
-
-  useEffect(() => {
-    if (routeData && routeData.length > 0) {
-      routeData.forEach((item) => {
-        fetchStore(item.storeId);
-      });
-    }
-  }, [routeData, fetchStore]);
-
-  console.log("storedata: ", storeDataMap);
 
   return (
     <div className="mt-6 p-6 rounded-2xl border border-blue-900 bg-blue-50 shadow-sm max-w-xl mx-auto">
@@ -140,7 +107,6 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
               className="p-3 rounded-lg bg-white border border-blue-200 shadow-sm flex justify-between items-center"
             >
               <h1 className="text-blue-800 font-medium">
-                {/* {storeDataMap[item.storeId]?.storeName ?? "Loading..."} */}
                 {item.store.storeName ?? "Loading..."}
               </h1>
               <span className="text-sm text-blue-600">

@@ -10,7 +10,8 @@ type Trips = Trip & {
   driver: Pick<Driver, "userId"> & {
     user: Pick<User, "name">;
   };
-  routes: (Pick<Route, "storeId"> & {
+  // routes: (Pick<Route, "storeId"> & {
+  dropoutAssigns: (Pick<Route, "storeId"> & {
     store: Pick<Store, "storeName" | "address">;
   })[];
   vehicle: Pick<Vehicle, "makeModel" | "registrationNumber">;
@@ -34,8 +35,8 @@ const DriverLogs = async ({ params: { logID } }: DriverLogsProps) => {
     vehicle: t.vehicle.makeModel,
     numberPlate: t.vehicle.registrationNumber,
     store:
-      t.routes.length > 0
-        ? t.routes.map((r) => r.store.storeName).join("\n")
+      t.dropoutAssigns.length > 0
+        ? t.dropoutAssigns.map((r) => r.store.storeName).join("\n")
         : "N/A",
     begin: t.startTime,
     finish: t.endTime,
