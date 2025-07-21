@@ -7,7 +7,7 @@ import WrapperDropoff from "./WrapperDropoff";
 import DetailMessage from "./DetailMessage";
 
 type DriverTripAllocationProps = {
-  params: { driverManagementID: string };
+  params: Promise<{ driverManagementID: string }>;
 };
 
 type DriverInfo = Driver & {
@@ -18,7 +18,7 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
   let vehicles: Vehicle[] = [];
   let stores: Store[] = [];
   let driverInfo: DriverInfo | null = null;
-  const id = params.driverManagementID;
+  const id = (await params).driverManagementID;
 
   try {
     const res_vehicle = await fetch("http://localhost:3000/api/vehicle", {
@@ -28,6 +28,7 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
       cache: "no-store",
     });
     const res_driverInfo = await fetch(
+      // `http://localhost:3000/api/driver/${id}`,
       `http://localhost:3000/api/driver/${id}`,
       {
         cache: "no-store",

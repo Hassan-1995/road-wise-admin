@@ -61,7 +61,7 @@ const NavSideBar = () => {
       icon: <FiSettings />,
     },
   ];
-  console.log(pathName);
+  console.log("Path Name: ", pathName);
   return (
     <>
       <div

@@ -3,7 +3,7 @@ import React from "react";
 import DriverTripTable from "../component/DriverTripTable";
 
 type DriverLogsProps = {
-  params: { logID: string };
+  params: Promise<{ logID: string }>;
 };
 
 type Trips = Trip & {
@@ -17,9 +17,10 @@ type Trips = Trip & {
   vehicle: Pick<Vehicle, "makeModel" | "registrationNumber">;
 };
 
-const DriverLogs = async ({ params: { logID } }: DriverLogsProps) => {
+const DriverLogs = async ({ params }: DriverLogsProps) => {
   let trips: Trips[] = [];
 
+  const logID = (await params).logID;
   try {
     const res = await fetch(`http://localhost:3000/api/trip/${logID}`, {
       cache: "no-store", // Ensures fresh data every request

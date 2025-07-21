@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { storeID: string } }
+  { params }: { params: Promise<{ storeID: string }> }
 ) {
-  const { storeID } = params;
+  const { storeID } = await params;
 
   try {
     const storeInfo = await prisma.store.findUnique({

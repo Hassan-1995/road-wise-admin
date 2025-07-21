@@ -4,9 +4,9 @@ import { NextResponse, NextRequest } from "next/server";
 // this function shows the trips with respect to driverID (each driver)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { logID: string } }
+  { params }: { params: Promise<{ logID: string }> }
 ) {
-  const { logID } = params;
+  const { logID } = await params;
 
   try {
     const trip = await prisma.trip.findMany({
