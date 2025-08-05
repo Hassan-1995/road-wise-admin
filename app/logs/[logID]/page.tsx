@@ -1,5 +1,11 @@
-import { Driver, Route, Store, Trip, User, Vehicle } from "@prisma/client";
-import React from "react";
+import {
+  Driver,
+  DropoutAssignment,
+  Store,
+  Trip,
+  User,
+  Vehicle,
+} from "@prisma/client";
 import DriverTripTable from "../component/DriverTripTable";
 
 type DriverLogsProps = {
@@ -11,7 +17,7 @@ type Trips = Trip & {
     user: Pick<User, "name">;
   };
   // routes: (Pick<Route, "storeId"> & {
-  dropoutAssigns: (Pick<Route, "storeId"> & {
+  dropoutAssigns: (Pick<DropoutAssignment, "storeId"> & {
     store: Pick<Store, "storeName" | "address">;
   })[];
   vehicle: Pick<Vehicle, "makeModel" | "registrationNumber">;
@@ -22,9 +28,12 @@ const DriverLogs = async ({ params }: DriverLogsProps) => {
 
   const logID = (await params).logID;
   try {
-    const res = await fetch(`http://localhost:3000/api/trip/${logID}`, {
-      cache: "no-store", // Ensures fresh data every request
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/trip/${logID}`,
+      {
+        cache: "no-store", // Ensures fresh data every request
+      }
+    );
     trips = await res.json();
   } catch (error) {
     console.error("Error fetching drivers:", error);

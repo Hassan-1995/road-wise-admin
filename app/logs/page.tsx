@@ -10,7 +10,7 @@ const DriverTips = async () => {
   let drivers: DriverWithUser[] = [];
 
   try {
-    const res = await fetch("http://localhost:3000/api/driver", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/driver`, {
       cache: "no-store", // Ensures fresh data every request
     });
     drivers = await res.json();

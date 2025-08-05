@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -19,19 +12,17 @@ datasource db {
 // -----------------------
 
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String
-  role         Role
-  email        String?  @unique
+  role         user_role
+  email        String?   @unique(map: "User_email_key")
   phone        String?
   passwordHash String?
-  createdAt    DateTime @default(now())
-
-  // driver Driver? @relation(fields: [id], references: [userId])
-  driver Driver?
+  createdAt    DateTime  @default(now())
+  driver       Driver?
 }
 
-enum Role {
+enum user_role {
   admin
   driver
   store
@@ -42,24 +33,24 @@ enum Role {
 // -----------------------
 
 model Driver {
-  id            Int       @id @default(autoincrement())
-  userId        Int       @unique
-  user          User      @relation(fields: [userId], references: [id])
-  cnicNumber    String    @unique
-  gender        Gender?
-  residenceArea String?
-  licenseNumber String?
-  dateOfBirth   DateTime?
-  createdAt     DateTime  @default(now())
-
-  vehicles       Vehicle[]
-  dropoutAssigns DropoutAssignment[]
-  liveTrackers   LiveTracker[]
-  trips          Trip[]
-  fuelLogs       FuelLog[]
+  id                    Int                     @id @default(autoincrement())
+  userId                Int                     @unique(map: "Driver_userId_key")
+  cnicNumber            String                  @unique(map: "Driver_cnicNumber_key")
+  gender                driver_gender?
+  residenceArea         String?
+  licenseNumber         String?
+  dateOfBirth           DateTime?
+  createdAt             DateTime                @default(now())
+  user                  User                    @relation(fields: [userId], references: [id], map: "Driver_userId_fkey")
+  dropoutAssigns        DropoutAssignment[]
+  fuellog               FuelLog[]
+  livetracker           LiveTracker[]
+  trip                  Trip[]
+  vehicle               Vehicle[]
+  VehicleMaintenanceLog VehicleMaintenanceLog[]
 }
 
-enum Gender {
+enum driver_gender {
   Male
   Female
 }
@@ -69,24 +60,26 @@ enum Gender {
 // -----------------------
 
 model Vehicle {
-  id                 Int           @id @default(autoincrement())
-  vehicleId          String        @unique
-  makeModel          String
-  registrationNumber String        @unique
-  status             VehicleStatus @default(Available)
-  currentLocation    String?
-  latitude           Decimal?      @db.Decimal(10, 8)
-  longitude          Decimal?      @db.Decimal(11, 8)
-  assignedDriverId   Int?
-  assignedDriver     Driver?       @relation(fields: [assignedDriverId], references: [id])
-  createdAt          DateTime      @default(now())
+  id                    Int                     @id @default(autoincrement())
+  vehicleId             String                  @unique(map: "Vehicle_vehicleId_key")
+  makeModel             String
+  registrationNumber    String                  @unique(map: "Vehicle_registrationNumber_key")
+  status                vehicle_status          @default(Available)
+  currentLocation       String?
+  latitude              Decimal?                @db.Decimal(10, 8)
+  longitude             Decimal?                @db.Decimal(11, 8)
+  assignedDriverId      Int?
+  createdAt             DateTime                @default(now())
+  fuellog               FuelLog[]
+  livetracker           LiveTracker[]
+  trip                  Trip[]
+  driver                Driver?                 @relation(fields: [assignedDriverId], references: [id], map: "Vehicle_assignedDriverId_fkey")
+  VehicleMaintenanceLog VehicleMaintenanceLog[]
 
-  liveTrackers LiveTracker[]
-  trips        Trip[]
-  fuelLogs     FuelLog[]
+  @@index([assignedDriverId], map: "Vehicle_assignedDriverId_fkey")
 }
 
-enum VehicleStatus {
+enum vehicle_status {
   Available
   In_Transit
   Under_Maintenance
@@ -98,17 +91,43 @@ enum VehicleStatus {
 // -----------------------
 
 model Store {
-  id        Int      @id @default(autoincrement())
-  storeName String
-  address   String?
-  latitude  Decimal  @db.Decimal(10, 8)
-  longitude Decimal  @db.Decimal(11, 8)
-  createdAt DateTime @default(now())
-
+  id             Int                 @id @default(autoincrement())
+  storeName      String
+  address        String?
+  latitude       Decimal             @db.Decimal(10, 8)
+  longitude      Decimal             @db.Decimal(11, 8)
+  createdAt      DateTime            @default(now())
   dropoutAssigns DropoutAssignment[]
-  // trips          Trip[]
-  // Route          Route[]
-  routes         Route[]
+}
+
+// -----------------------
+// TRIPS
+// -----------------------
+
+model Trip {
+  id              Int                 @id @default(autoincrement())
+  vehicleId       Int?
+  driverId        Int?
+  startTime       DateTime?
+  endTime         DateTime?
+  distanceKm      Decimal?            @db.Decimal(8, 2)
+  notes           String?
+  status          trip_status         @default(In_Progress)
+  createdAt       DateTime            @default(now())
+  actualpathpoint actualpathpoint[]
+  dropoutAssigns  DropoutAssignment[]
+  optimisedpath   optimisedpath?
+  driver          Driver?             @relation(fields: [driverId], references: [id], map: "Trip_driverId_fkey")
+  vehicle         Vehicle?            @relation(fields: [vehicleId], references: [id], map: "Trip_vehicleId_fkey")
+
+  @@index([driverId], map: "Trip_driverId_fkey")
+  @@index([vehicleId], map: "Trip_vehicleId_fkey")
+}
+
+enum trip_status {
+  In_Progress
+  Completed
+  Cancelled
 }
 
 // -----------------------
@@ -116,21 +135,22 @@ model Store {
 // -----------------------
 
 model DropoutAssignment {
-  id         Int           @id @default(autoincrement())
-  tripId     Int
+  id         Int                      @id @default(autoincrement())
   driverId   Int
   storeId    Int
-  assignedAt DateTime      @default(now())
-  status     DropoutStatus @default(Pending)
+  assignedAt DateTime                 @default(now())
+  status     dropoutassignment_status @default(Pending)
+  tripId     Int
+  driver     Driver                   @relation(fields: [driverId], references: [id], map: "DropoutAssignment_driverId_fkey")
+  store      Store                    @relation(fields: [storeId], references: [id], map: "DropoutAssignment_storeId_fkey")
+  trip       Trip                     @relation(fields: [tripId], references: [id], map: "DropoutAssignment_tripId_fkey")
 
-  trip   Trip   @relation(fields: [tripId], references: [id])
-  driver Driver @relation(fields: [driverId], references: [id])
-  store  Store  @relation(fields: [storeId], references: [id])
-
-  @@unique([tripId, storeId]) // ✅ enforce uniqueness like Route
+  @@unique([tripId, storeId], map: "DropoutAssignment_tripId_storeId_key")
+  @@index([driverId], map: "DropoutAssignment_driverId_fkey")
+  @@index([storeId], map: "DropoutAssignment_storeId_fkey")
 }
 
-enum DropoutStatus {
+enum dropoutassignment_status {
   Pending
   Completed
   Cancelled
@@ -141,69 +161,23 @@ enum DropoutStatus {
 // -----------------------
 
 model LiveTracker {
-  id         Int           @id @default(autoincrement())
+  id         Int                @id @default(autoincrement())
   vehicleId  Int
   driverId   Int
-  latitude   Decimal       @db.Decimal(10, 8)
-  longitude  Decimal       @db.Decimal(11, 8)
-  status     TrackerStatus @default(Active)
-  recordedAt DateTime      @default(now())
+  latitude   Decimal            @db.Decimal(10, 8)
+  longitude  Decimal            @db.Decimal(11, 8)
+  status     livetracker_status @default(Active)
+  recordedAt DateTime           @default(now())
+  driver     Driver             @relation(fields: [driverId], references: [id], map: "LiveTracker_driverId_fkey")
+  vehicle    Vehicle            @relation(fields: [vehicleId], references: [id], map: "LiveTracker_vehicleId_fkey")
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
-  driver  Driver  @relation(fields: [driverId], references: [id])
+  @@index([driverId], map: "LiveTracker_driverId_fkey")
+  @@index([vehicleId], map: "LiveTracker_vehicleId_fkey")
 }
 
-enum TrackerStatus {
+enum livetracker_status {
   Active
   Break
-}
-
-// -----------------------
-// TRIPS
-// -----------------------
-
-model Trip {
-  id         Int        @id @default(autoincrement())
-  vehicleId  Int?
-  driverId   Int?
-  // storeId    Int?
-  startTime  DateTime?
-  endTime    DateTime?
-  distanceKm Decimal?   @db.Decimal(8, 2)
-  notes      String?
-  status     TripStatus @default(In_Progress)
-  createdAt  DateTime   @default(now())
-
-  vehicle         Vehicle?            @relation(fields: [vehicleId], references: [id])
-  driver          Driver?             @relation(fields: [driverId], references: [id])
-  // store   Store?   @relation(fields: [storeId], references: [id])
-  // Route   Route[]
-  routes          Route[]
-  dropoutAssigns  DropoutAssignment[]
-  OptimisedPath   OptimisedPath?
-  ActualPathPoint ActualPathPoint[]
-}
-
-enum TripStatus {
-  In_Progress
-  Completed
-  Cancelled
-}
-
-// -----------------------
-// ROUTE
-// -----------------------
-
-model Route {
-  tripId    Int
-  storeId   Int
-  createdAt DateTime @default(now())
-
-  trip  Trip  @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@id([tripId, storeId]) // composite primary key
-  @@index([tripId]) // ✅ added index for query performance
 }
 
 // -----------------------
@@ -221,39 +195,81 @@ model FuelLog {
   location   String?
   notes      String?
   createdAt  DateTime @default(now())
+  driver     Driver?  @relation(fields: [driverId], references: [id], map: "FuelLog_driverId_fkey")
+  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id], map: "FuelLog_vehicleId_fkey")
 
-  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
-  driver  Driver?  @relation(fields: [driverId], references: [id])
+  @@index([driverId], map: "FuelLog_driverId_fkey")
+  @@index([vehicleId], map: "FuelLog_vehicleId_fkey")
 }
 
-// -----------------------
-// OPTIMISED PATH
-// -----------------------
-
-model OptimisedPath {
-  id         Int      @id @default(autoincrement())
-  tripId     Int      @unique
-  pathPoints Json
-  createdAt  DateTime @default(now())
-
-  trip Trip @relation(fields: [tripId], references: [id])
-
-  @@index([tripId])
-}
-
-// -----------------------
-// ACTUAL PATH POINT
-// -----------------------
-
-model ActualPathPoint {
+model actualpathpoint {
   id         Int      @id @default(autoincrement())
   tripId     Int
   latitude   Decimal  @db.Decimal(10, 8)
   longitude  Decimal  @db.Decimal(11, 8)
   recordedAt DateTime @default(now())
   sequence   Int?
+  trip       Trip     @relation(fields: [tripId], references: [id], map: "ActualPathPoint_tripId_fkey")
 
-  trip Trip @relation(fields: [tripId], references: [id])
+  @@index([tripId], map: "ActualPathPoint_tripId_idx")
+}
 
-  @@index([tripId])
+model optimisedpath {
+  id         Int      @id @default(autoincrement())
+  tripId     Int      @unique(map: "OptimisedPath_tripId_key")
+  pathPoints Json
+  createdAt  DateTime @default(now())
+  trip       Trip     @relation(fields: [tripId], references: [id], map: "OptimisedPath_tripId_fkey")
+
+  @@index([tripId], map: "OptimisedPath_tripId_idx")
+}
+
+// -----------------------
+// VEHICLE MAINTENANCE LOGS (NEW TABLE)
+// -----------------------
+
+model VehicleMaintenanceLog {
+  id              Int      @id @default(autoincrement())
+  vehicleId       Int?
+  driverId        Int?
+  maintenanceDate DateTime
+
+  // Fuel log
+  liters Decimal? @db.Decimal(8, 2)
+
+  // Service log
+  serviceType ServiceType?
+
+  // Repair log
+  repairType RepairType?
+
+  // Common
+  costRs     Decimal  @db.Decimal(10, 2)
+  odometerKm Decimal  @db.Decimal(10, 2)
+  location   String?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  driver  Driver?  @relation(fields: [driverId], references: [id], map: "VML_driverId_fkey")
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], map: "VML_vehicleId_fkey")
+
+  @@index([driverId], map: "VML_driverId_fkey")
+  @@index([vehicleId], map: "VML_vehicleId_fkey")
+}
+
+enum ServiceType {
+  OIL_CHANGE
+  TIRE_ROTATION
+  BRAKE_INSPECTION
+  BATTERY_CHECK
+  GENERAL_SERVICE
+}
+
+enum RepairType {
+  ENGINE
+  TRANSMISSION
+  BRAKES
+  SUSPENSION
+  ELECTRICAL
+  BODY
 }

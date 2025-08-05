@@ -32,7 +32,7 @@ const PathComparisonPage = async ({ params }: PathComparisonPageProps) => {
   //
   try {
     const res = await fetch(
-      `http://localhost:3000/api/dropout-assignment/${pathID}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/dropout-assignment/${pathID}`,
       {
         cache: "no-store", // helpful to avoid stale data in dev
       }

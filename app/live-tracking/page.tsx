@@ -14,9 +14,12 @@ const LivePositions = async () => {
   let live_trackers: LivePositions[] = [];
 
   try {
-    const res = await fetch("http://localhost:3000/api/live-tracker", {
-      cache: "no-store", // Ensures fresh data every request
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/live-tracker`,
+      {
+        cache: "no-store", // Ensures fresh data every request
+      }
+    );
     live_trackers = await res.json();
   } catch (error) {
     console.error("Error fetching live positions:", error);

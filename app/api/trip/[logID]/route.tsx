@@ -30,7 +30,6 @@ export async function GET(
             registrationNumber: true,
           },
         },
-        // routes: {
         dropoutAssigns: {
           select: {
             storeId: true,

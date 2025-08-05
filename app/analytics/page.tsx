@@ -12,7 +12,7 @@ type FuelMetrics = FuelLog & {
 const AnalyticsPage = async () => {
   let fuelMetrics: FuelMetrics[] = [];
   try {
-    const res = await fetch("http://localhost:3000/api/fuel-log", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fuel-log`, {
       cache: "no-store", // Ensures fresh data every request
     });
     fuelMetrics = await res.json();

@@ -21,15 +21,15 @@ const DriverTripAllocation = async ({ params }: DriverTripAllocationProps) => {
   const id = (await params).driverManagementID;
 
   try {
-    const res_vehicle = await fetch("http://localhost:3000/api/vehicle", {
+    const res_vehicle = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vehicle`, {
       cache: "no-store",
     });
-    const res_store = await fetch("http://localhost:3000/api/store", {
+    const res_store = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/store`, {
       cache: "no-store",
     });
     const res_driverInfo = await fetch(
-      // `http://localhost:3000/api/driver/${id}`,
-      `http://localhost:3000/api/driver/${id}`,
+      // `${process.env.NEXT_PUBLIC_BASE_URL}/api/driver/${id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/driver/${id}`,
       {
         cache: "no-store",
       }

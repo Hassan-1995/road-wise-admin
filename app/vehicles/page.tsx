@@ -6,7 +6,7 @@ const VehiclesPage = async () => {
 
   try {
     // vehicles = await prisma.vehicle.findMany();
-    const res = await fetch("http://localhost:3000/api/vehicle", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vehicle`, {
       cache: "no-store", // Ensures fresh data every request
     });
     vehicles = await res.json();
@@ -28,7 +28,7 @@ const VehiclesPage = async () => {
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">Vehilces</h1>
       <div className="flex gap-4 overflow-x-auto py-2 mb-3">
-        <VehicleRegisteredTable RegisteredVeicles={formattedVehicles} />
+        <VehicleRegisteredTable />
       </div>
     </div>
   );

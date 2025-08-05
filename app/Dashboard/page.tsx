@@ -3,8 +3,6 @@ import { LuFuel, LuTriangleAlert, LuTruck, LuUsersRound } from "react-icons/lu";
 import PromptCard from "./components/PromptCard";
 import PieChart from "./components/PieChart";
 import DriverTripLog from "./components/DriverTripLog";
-import { Driver, LiveTracker, User, Vehicle } from "@prisma/client";
-import { LatLngExpression } from "leaflet";
 import WrapperLiveMapPosition from "../components/WrapperLiveMapPosition";
 
 type dashboardType = {
@@ -131,35 +129,7 @@ const driverTripLog = [
   },
 ];
 
-type LivePositions = LiveTracker & {
-  driver: Pick<Driver, "userId"> & {
-    user: Pick<User, "name">;
-  };
-  vehicle: Pick<Vehicle, "makeModel" | "registrationNumber">;
-};
-
 const DashBoard = async () => {
-  let live_trackers: LivePositions[] = [];
-
-  try {
-    const res = await fetch("http://localhost:3000/api/live-tracker", {
-      cache: "no-store", // Ensures fresh data every request
-    });
-    live_trackers = await res.json();
-  } catch (error) {
-    console.error("Error fetching live positions:", error);
-  }
-  console.log("Raw: ", live_trackers);
-
-  const formattedPositions = live_trackers.map((l) => ({
-    id: l.id,
-    name: l.driver.user.name,
-    position: [
-      parseFloat(l.latitude as unknown as string),
-      parseFloat(l.longitude as unknown as string),
-    ] as LatLngExpression,
-  }));
-
   return (
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">Dashboard</h1>
@@ -183,7 +153,7 @@ const DashBoard = async () => {
             Real-time tracking of fleet vehicles
           </h2>
           <div className="flex-1 relative rounded-lg overflow-hidden">
-            <WrapperLiveMapPosition locations={formattedPositions} />
+            <WrapperLiveMapPosition />
           </div>
         </div>
 
