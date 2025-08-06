@@ -53,8 +53,9 @@ type LiveMapPositionsProps = {
 const LiveMapPositions = ({ locations }: LiveMapPositionsProps) => {
   return (
     <div className="w-full h-full rounded-lg overflow-hidden">
+      {/* <div className="w-[100%] h-[100%] rounded-lg overflow-hidden"> */}
       <MapContainer
-        center={[30.3753, 69.3451]}
+        center={[25.1072, 67.2371]}
         zoom={5}
         scrollWheelZoom={true}
         className="h-full w-full"

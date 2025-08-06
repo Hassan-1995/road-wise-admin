@@ -1,21 +1,31 @@
+"use client";
+import { Driver, getAllDriversInfo } from "@/app/apiFolder/driver";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MdFemale, MdMale } from "react-icons/md";
 
-type DriversProps = {
-  drivers: {
-    id: number;
-    name: string;
-    gender: "Male" | "Female" | null;
-    phone: string | null;
-    email: string | null;
-    cnic: string;
-    residence: string | null;
-    dob: Date | null;
-  }[];
-};
+const Drivers = () => {
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const Drivers = ({ drivers }: DriversProps) => {
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const data = await getAllDriversInfo();
+        setDrivers(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching vehicles:", err);
+        setError("Failed to load vehicles data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
   const getGenderIcon = (gender: string | null) => {
     switch (gender) {
       case "Male":
@@ -27,6 +37,8 @@ const Drivers = ({ drivers }: DriversProps) => {
         return <h1>N/A</h1>;
     }
   };
+  if (loading) return <p className="p-4 text-gray-600">Loading drivers...</p>;
+  if (error) return <p className="p-4 text-red-600">{error}</p>;
 
   return (
     <div className="w-full">
@@ -74,19 +86,21 @@ const Drivers = ({ drivers }: DriversProps) => {
           {/* Driver CNIC */}
           <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">CNIC:</span>
-            {driver.cnic}
+            {driver.cnicNumber}
           </div>
 
           {/* Driver Residence */}
           <div className="flex lg:block justify-between lg:w-1/4 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Residence:</span>
-            {driver.residence}
+            {driver.residenceArea}
           </div>
 
           {/* Driver DoB */}
           <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">DoB:</span>
-            {driver.dob ? new Date(driver.dob).toLocaleDateString() : ""}
+            {driver.dateOfBirth
+              ? new Date(driver.dateOfBirth).toLocaleDateString()
+              : ""}
           </div>
         </Link>
       ))}

@@ -1,18 +1,35 @@
-import React from "react";
+"use client";
+import {
+  getDriverLivePosition,
+  LiveTracker,
+} from "@/app/apiFolder/live-tracker";
+import React, { useEffect, useState } from "react";
 import { MdCancel, MdCheckCircle } from "react-icons/md";
 
-type LiveVehicleInfoProps = {
-  vehicleInfo: {
-    id: number;
-    name: string;
-    status: "Active" | "Break";
-    makeModel: string;
-    numberPlate: string;
-    recordedTime: Date;
-  }[];
-};
+const LiveVehicleInfo = () => {
+  const [vehicles, setVehicles] = useState<LiveTracker[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
+  let live_trackers: LiveTracker[] = [];
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        live_trackers = await getDriverLivePosition();
+        setVehicles(live_trackers);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching driver data:", error);
+        setError("Failed to load drivers live position.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
+  console.log("Raw Data: ", vehicles);
+
   const getStatusIcon = (status: string | null) => {
     switch (status) {
       case "Active":
@@ -49,6 +66,8 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
     return `${timePart} ${day}-${month}`;
   };
 
+  if (loading) return <p>Loading vehicles info...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
   return (
     <div className="w-full">
       {/* Header */}
@@ -60,7 +79,7 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
         <div className="w-1/5 p-3">Time Stamp</div>
       </div>
 
-      {vehicleInfo.map((vehicle) => (
+      {vehicles.map((vehicle) => (
         <div
           key={vehicle.id}
           className="w-full flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
@@ -68,7 +87,7 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
           {/* Driver Name */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Driver Name:</span>
-            {vehicle.name}
+            {vehicle.driverName}
           </div>
 
           {/* Vehicle Status */}
@@ -86,13 +105,13 @@ const LiveVehicleInfo = ({ vehicleInfo }: LiveVehicleInfoProps) => {
           {/* Vehicle Number Plate */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Number Plate:</span>
-            {vehicle.numberPlate}
+            {vehicle.registrationNumber}
           </div>
 
           {/* Vehicle Live Position Recorded Time */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Time Stamp:</span>
-            {formatTime(String(vehicle.recordedTime))}
+            {formatTime(String(vehicle.recordedAt))}
           </div>
         </div>
       ))}

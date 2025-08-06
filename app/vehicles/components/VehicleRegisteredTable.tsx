@@ -1,6 +1,7 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { getAllVehiclesInfo, Vehicle } from "@/app/apiFolder/vehicle";
-import React, { useEffect, useState } from "react";
 import { FaWrench } from "react-icons/fa";
 import { FiCheckCircle, FiPauseCircle, FiTruck } from "react-icons/fi";
 
@@ -9,31 +10,22 @@ const VehicleRegisteredTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  let registered_vehicles: Vehicle[] = [];
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        registered_vehicles = await getAllVehiclesInfo();
-        setVehicles(registered_vehicles);
+        const data = await getAllVehiclesInfo();
+        setVehicles(data);
         setError(null);
-      } catch (error) {
-        console.error("Error fetching vehicles data:", error);
+      } catch (err) {
+        console.error("Error fetching vehicles:", err);
         setError("Failed to load vehicles data.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchVehicles();
   }, []);
-
-  const formattedVehicles = vehicles.map((v) => ({
-    id: v.id,
-    vehicleId: v.vehicleId,
-    makeModel: v.makeModel,
-    registrationNumber: v.registrationNumber,
-    status: v.status.replace(/_/g, " "), // "In_Transit" -> "In Transit"
-    currentLocation: v.currentLocation ?? "—",
-  }));
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -50,9 +42,12 @@ const VehicleRegisteredTable = () => {
     }
   };
 
+  if (loading) return <p className="p-4 text-gray-600">Loading vehicles...</p>;
+  if (error) return <p className="p-4 text-red-600">{error}</p>;
+
   return (
     <div className="w-full">
-      {/* Header */}
+      {/* Table Header */}
       <div className="hidden lg:flex w-full bg-gray-100 border-b border-zinc-300 font-semibold text-sm">
         <div className="w-1/5 p-3">Vehicle ID</div>
         <div className="w-1/5 p-3">Make/Model</div>
@@ -61,39 +56,31 @@ const VehicleRegisteredTable = () => {
         <div className="w-1/5 p-3">Location</div>
       </div>
 
-      {formattedVehicles.map((vehicle) => (
+      {/* Table Rows */}
+      {vehicles.map((v) => (
         <div
-          key={vehicle.id}
+          key={v.id}
           className="w-full flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
         >
-          {/* Vehicle ID */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Vehicle ID: </span>
-            {vehicle.vehicleId}
+            {v.vehicleId}
           </div>
-
-          {/* Make/Model */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Make/Model: </span>
-            {vehicle.makeModel}
+            {v.makeModel}
           </div>
-
-          {/* Registration Number */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Registration: </span>
-            {vehicle.registrationNumber}
+            {v.registrationNumber}
           </div>
-
-          {/* Status */}
-          <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
+          <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700 items-center gap-2">
             <span className="lg:hidden font-medium">Status: </span>
-            <span className={""}>{getStatusIcon(vehicle.status)}</span>
+            {getStatusIcon(v.status.replace(/_/g, " "))}
           </div>
-
-          {/* Current Location */}
           <div className="flex lg:block justify-between lg:w-1/5 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Location: </span>
-            {vehicle.currentLocation || "—"}
+            {v.currentLocation ?? "—"}
           </div>
         </div>
       ))}

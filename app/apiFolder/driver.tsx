@@ -3,20 +3,26 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-export type LiveTracker = {
+export type Driver = {
   id: number;
-  latitude: string;
-  longitude: string;
-  status: string;
-  recordedAt: string;
-  driverName: string;
-  makeModel: string;
-  registrationNumber: string;
+  userId: number;
+  cnicNumber: string;
+  gender: string;
+  residenceArea: string;
+  licenseNumber: string;
+  dateOfBirth: string; // ISO string format
+  createdAt: string; // ISO string format
+  name: string;
+  phone: string;
+  email: string;
 };
 
-export const getDriverLivePosition = async (): Promise<LiveTracker[]> => {
-  const response = await axios.get<LiveTracker[]>(
-    `${BASE_URL}/api/driver-live-position`
-  );
+export const getAllDriversInfo = async (): Promise<Driver[]> => {
+  const response = await axios.get<Driver[]>(`${BASE_URL}/api/driver`);
   return response.data;
+};
+
+export const getDriverById = async (id: number): Promise<Driver> => {
+  const response = await axios.get<Driver[]>(`${BASE_URL}/api/driver/id/${id}`);
+  return response.data[0];
 };
