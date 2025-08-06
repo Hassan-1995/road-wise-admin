@@ -184,11 +184,11 @@ const DriverTripAllocation = async ({ params }: Props) => {
             />
             <InfoCard
               label="CNIC Number"
-              value={driverInfo?.cnicNumber ?? "N/A"}
+              value={driverInfo.cnicNumber ?? "N/A"}
             />
             <InfoCard
               label="Residence Area"
-              value={driverInfo?.residenceArea ?? "N/A"}
+              value={driverInfo.residenceArea ?? "N/A"}
             />
           </div>
         </section>

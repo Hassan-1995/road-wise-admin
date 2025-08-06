@@ -1,5 +1,9 @@
 "use client";
-import { DropoutAssignment, Store, Vehicle } from "@prisma/client";
+import {
+  DropoutAssignment,
+  getDropoffsByTripID,
+} from "@/app/apiFolder/droupout-assignment";
+import { getVehicleByID, Vehicle } from "@/app/apiFolder/vehicle";
 import { useEffect, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
@@ -7,9 +11,6 @@ type DetailMessageProps = {
   driverName: string | undefined;
 };
 
-type DropoutAssignmentWitStoreName = DropoutAssignment & {
-  store: Pick<Store, "storeName">;
-};
 
 const DetailMessage = ({ driverName }: DetailMessageProps) => {
   const [tripId] = useLocalStorageState<number | null>("currentTripId", {
@@ -19,8 +20,8 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
     defaultValue: null,
   });
 
-  const [vehicleData, setVehicleData] = useState<Vehicle>();
-  const [routeData, setRouteData] = useState<DropoutAssignmentWitStoreName[]>();
+  const [vehicleData, setVehicleData] = useState<Vehicle | null>(null);
+  const [routeData, setRouteData] = useState<DropoutAssignment[] | null>(null);
 
   useEffect(() => {
     fetchVehicle();
@@ -30,17 +31,13 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
   const fetchVehicle = async () => {
     if (!vehicleId) return;
     try {
-      const res = await fetch(`/api/vehicle/${vehicleId}`, {
-        cache: "no-store",
-      });
+      const response = await getVehicleByID(Number(vehicleId));
 
-      if (!res.ok) {
+      if (!response) {
         console.error("Failed to fetch vehicle data");
         return;
       }
-
-      const data = await res.json();
-      setVehicleData(data);
+      setVehicleData(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -48,17 +45,16 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
   const fetchRoute = async () => {
     if (!tripId) return;
     try {
-      const res = await fetch(`/api/dropout-assignment/${tripId}`, {
-        cache: "no-store",
-      });
+      const response = await getDropoffsByTripID(Number(tripId));
 
-      if (!res.ok) {
+      if (!response) {
         console.error("Failed to fetch route data");
         return;
       }
 
-      const data = await res.json();
-      setRouteData(data);
+      // const data = await res.json();
+      console.log("Raw ROUTE: ", response);
+      setRouteData(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -107,7 +103,7 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
               className="p-3 rounded-lg bg-white border border-blue-200 shadow-sm flex justify-between items-center"
             >
               <h1 className="text-blue-800 font-medium">
-                {item.store.storeName ?? "Loading..."}
+                {item.storename ?? "Loading..."}
               </h1>
               <span className="text-sm text-blue-600">
                 Store ID: {item.storeId}

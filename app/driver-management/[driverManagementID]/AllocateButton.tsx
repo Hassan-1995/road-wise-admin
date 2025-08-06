@@ -42,7 +42,9 @@
 
 "use client";
 
-import { Driver, User } from "@prisma/client";
+import { Driver } from "@/app/apiFolder/driver";
+import { assignDropoffs } from "@/app/apiFolder/droupout-assignment";
+import { User } from "@prisma/client";
 import React, { useState } from "react";
 
 type DriverInfo = Driver & {
@@ -53,7 +55,8 @@ type AllocateButtonProps = {
   label?: string;
   vehicleId?: number; // pass data you want to save
   storeId?: number;
-  driverInfo: DriverInfo | null;
+  // driverInfo: DriverInfo | null;
+  driverInfo: Driver;
 };
 
 const AllocateButton = ({
@@ -67,15 +70,12 @@ const AllocateButton = ({
     const storeID = localStorage.getItem("Select Dropoff");
     const tripID = localStorage.getItem("currentTripId");
 
-    if (!tripID || !storeID) {
-      setMessage("⚠️ Please select both trip and dropoff before allocating.");
+    if (!tripID || !storeID || !driverInfo.id) {
+      setMessage(
+        "⚠️ Please select trip, driver and dropoff before allocating."
+      );
       return;
     }
-
-    // const formattedData = {
-    //   tripId: Number(tripID),
-    //   storeId: Number(storeID),
-    // };
     const formattedData = {
       tripId: Number(tripID),
       storeId: Number(storeID),
@@ -83,23 +83,16 @@ const AllocateButton = ({
     };
 
     console.log("Data to put: ", formattedData);
-
     setLoading(true);
     setMessage(null);
 
     try {
-      // const response = await fetch("/api/route", {
-      const response = await fetch("/api/dropout-assignment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to allocate trip route.");
+      const response = await assignDropoffs(formattedData);
+      if (!response.success) {
+        throw new Error("Failed to assign dropoff.");
       }
-
       setMessage("✅ Allocation successful.");
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error(error);
       setMessage("❌ Failed to allocate. Please try again.");
@@ -110,19 +103,6 @@ const AllocateButton = ({
 
   return (
     <div className="flex items-center space-x-3">
-      {message && (
-        <p
-          className={`text-sm ${
-            message.startsWith("✅")
-              ? "text-green-600"
-              : message.startsWith("⚠️")
-              ? "text-yellow-600"
-              : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
       <button
         onClick={handleClick}
         disabled={loading}
@@ -136,6 +116,19 @@ const AllocateButton = ({
         {/* <h1>{driverInfo?.id}</h1> */}
         {loading ? <span className="animate-pulse">Allocating...</span> : label}
       </button>
+      {message && (
+        <p
+          className={`text-sm ${
+            message.startsWith("✅")
+              ? "text-green-600"
+              : message.startsWith("⚠️")
+              ? "text-yellow-600"
+              : "text-red-600"
+          }`}
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 };

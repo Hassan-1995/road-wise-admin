@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { createTrip } from "@/app/apiFolder/trip";
+import { useState } from "react";
 
 type CreateTripButtonProps = {
   label?: string;
@@ -11,6 +12,7 @@ const CreateTripButton = ({
   label = "Create Trip",
   driverID,
 }: CreateTripButtonProps) => {
+  const [trip, setTrip] = useState<number>();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -20,27 +22,26 @@ const CreateTripButton = ({
       alert("Please select a vehicle before creating a trip.");
       return;
     }
+    if (!driverID) {
+      alert("Driver ID is missing.");
+      return;
+    }
 
     setLoading(true);
     setSuccessMessage(null);
-
     try {
-      const response = await fetch("/api/trip", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          driverId: driverID,
-          vehicleId: Number(vehicleID),
-        }),
-      });
-
-      if (!response.ok) {
+      const newTrip = {
+        driverId: Number(driverID!),
+        vehicleId: Number(vehicleID),
+      };
+      const response = await createTrip(newTrip);
+      if (!response.success) {
         throw new Error("Failed to create trip.");
       }
-
-      const data = await response.json();
-      localStorage.setItem("currentTripId", data.tripId);
+      setTrip(response.insertId);
+      localStorage.setItem("currentTripId", String(response.insertId));
       setSuccessMessage(`✅ Trip created successfully`);
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
       console.error(error);
       setSuccessMessage("❌ Failed to create trip.");

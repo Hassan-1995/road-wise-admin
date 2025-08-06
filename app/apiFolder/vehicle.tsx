@@ -20,3 +20,10 @@ export const getAllVehiclesInfo = async (): Promise<Vehicle[]> => {
   const response = await axios.get<Vehicle[]>(`${BASE_URL}/api/vehicle`);
   return response.data;
 };
+
+export const getVehicleByID = async (vehicleID: number): Promise<Vehicle> => {
+  const response = await axios.get<Vehicle[]>(
+    `${BASE_URL}/api/vehicle/id/${vehicleID}`
+  );
+  return response.data[0];
+};

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
 const TripMessage = () => {
