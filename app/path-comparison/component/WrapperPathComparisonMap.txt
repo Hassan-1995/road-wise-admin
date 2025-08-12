@@ -3,7 +3,7 @@
 // import { type LatLngExpression } from "leaflet";
 import dynamic from "next/dynamic";
 
-const PathComparisonMap = dynamic(() => import("./PathComparisonMap"), {
+const PathComparisonMap = dynamic(() => import("./PathComparisonMa"), {
   ssr: false,
 });
 

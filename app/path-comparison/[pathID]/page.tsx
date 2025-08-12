@@ -1,82 +1,92 @@
-// import PathComparisonMap from "../component/PathComparisonMap";
-import WrapperPathComparisonMap from "../component/WrapperPathComparisonMap";
+// app/two-polylines/page.tsx
+import React from "react";
+import PathComparisonMap from "../../components/PathComparisonMap";
+import { LatLngExpression } from "leaflet";
+import { getOptimisedPathByTripId } from "@/app/apiFolder/path";
 
-type PathComparisonPageProps = {
-  params: Promise<{ pathID: string }>;
-};
+// -- decoded fnuction
+type LatLng = { lat: number; lng: number };
 
-type DropoutAssignment = {
-  store: {
-    storeName: string;
-    latitude: string;
-    longitude: string;
-  };
-};
+function decodePolyline(encoded: string): LatLngExpression[] {
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
+  const coordinates: LatLngExpression[] = [];
 
-type DropoutPoint = {
-  place: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-};
+  while (index < encoded.length) {
+    let b: number;
+    let shift = 0;
+    let result = 0;
 
-const PathComparisonPage = async ({ params }: PathComparisonPageProps) => {
-  const pathID = (await params).pathID;
-  const startPoint = { lat: 24.8607, lng: 67.0011 }; // Karachi
-  // const endPoint = { lat: 24.8963, lng: 67.0822 }; // Clifton
+    // latitude
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
+    lat += deltaLat;
 
-  // let dropoutPoints: DropoutAssignment[] = []; // <-- initialized to empty
-  let dropoutPoints: DropoutPoint[] = []; // <-- initialized to empty
+    // longitude
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
+    lng += deltaLng;
 
-  //
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/dropout-assignment/${pathID}`,
-      {
-        cache: "no-store", // helpful to avoid stale data in dev
-      }
-    );
-    if (!res.ok) {
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
-    const data: DropoutAssignment[] = await res.json();
-    // console.log("PATH DATA:", data);
-
-    if (data.length > 0) {
-      dropoutPoints = data.map((l) => ({
-        place: l.store.storeName,
-        location: {
-          lat: parseFloat(l.store.latitude),
-          lng: parseFloat(l.store.longitude),
-        },
-      }));
-      // console.log("Formatted:", dropoutPoints);
-    }
-  } catch (error) {
-    console.error("Error fetching dropout-assignment:", error);
+    coordinates.push([lat / 1e5, lng / 1e5]);
   }
 
-  console.log("End Point: ", dropoutPoints[dropoutPoints.length - 1].location);
+  return coordinates;
+}
+
+const TwoPolylinePage = async () => {
+  // Example coordinates
+  const polyline1: LatLngExpression[] = [
+    [37.7749, -122.4194],
+    [37.775, -122.418],
+    [37.776, -122.417],
+  ];
+
+  const polyline2: LatLngExpression[] = [
+    [37.774, -122.42],
+    [37.7755, -122.419],
+    [37.777, -122.418],
+  ];
+
+  let decodedOptimisedPath: LatLngExpression[] = [];
+
+  try {
+    const res = await getOptimisedPathByTripId(31);
+
+    console.log("Res: ", res.data.optimisedPath);
+
+    if (!res || !res.data.optimisedPath) {
+      throw new Error("No optimised path returned from API");
+    }
+
+    decodedOptimisedPath = decodePolyline(res.data.optimisedPath);
+    console.log("Decoded Path: ", decodedOptimisedPath);
+  } catch (error) {
+    console.error("Error fetching or decoding polyline:", error);
+    // fallback or empty polyline so your map still renders
+    decodedOptimisedPath = [];
+  }
+
   return (
     <div className="p-4">
-      <h1 className="text-lg font-bold mb-4">Trip Route Map: {pathID}</h1>
-      <div className="w-full max-w-7xl mx-auto p-4 space-y-10">
-        <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden">
-          {/* <PathComparisonMap
-            startPoint={startPoint}
-            dropoutPoints={dropoutPoints}
-            endPoint={dropoutPoints[dropoutPoints.length - 1].location}
-          /> */}
-          <WrapperPathComparisonMap
-            startPoint={startPoint}
-            dropoutPoints={dropoutPoints}
-            endPoint={dropoutPoints[dropoutPoints.length - 1].location}
-          />
-        </div>
-      </div>
+      <h1 className="text-xl font-bold mb-4">Two Polylines Map</h1>
+      {/* <PathComparisonMap polyline1={polyline1} polyline2={polyline2} /> */}
+      <PathComparisonMap
+        polyline1={decodedOptimisedPath}
+        polyline2={decodedOptimisedPath}
+      />
     </div>
   );
 };
 
-export default PathComparisonPage;
+export default TwoPolylinePage;

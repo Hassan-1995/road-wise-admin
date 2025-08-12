@@ -1,5 +1,4 @@
 import { Driver, FuelLog, User, Vehicle } from "@prisma/client";
-import React from "react";
 import FuelLogTable from "./component/FuelLogTable";
 
 type FuelMetrics = FuelLog & {
@@ -11,14 +10,6 @@ type FuelMetrics = FuelLog & {
 
 const AnalyticsPage = async () => {
   let fuelMetrics: FuelMetrics[] = [];
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/fuel-log`, {
-      cache: "no-store", // Ensures fresh data every request
-    });
-    fuelMetrics = await res.json();
-  } catch (error) {
-    console.error("Error fetching fuel metrics:", error);
-  }
 
   console.log(fuelMetrics);
 

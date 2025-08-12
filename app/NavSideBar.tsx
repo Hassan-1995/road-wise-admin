@@ -46,12 +46,12 @@ const NavSideBar = () => {
       icon: <FiBookOpen />,
     },
     {
-      href: "/analytics",
+      href: "/fuel-analytics",
       label: "Fuel & Cost Analytics",
       icon: <FiBarChart2 />,
     },
     {
-      href: "/maintenance",
+      href: "/service-repair",
       label: "Vehicle Maintenance",
       icon: <FiTool />,
     },

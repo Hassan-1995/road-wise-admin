@@ -8,19 +8,7 @@ import { useEffect, useState } from "react";
 import { LuClipboardList, LuFuel, LuWallet } from "react-icons/lu";
 // import { MdCancel, MdCheckCircle } from "react-icons/md";
 
-type FuelLogTableProps = {
-  fuelInfo: {
-    id: number;
-    refuelingTime: Date;
-    makeModel: string;
-    meterReading: number;
-    liters: number;
-    name: string;
-    cost: number;
-  }[];
-};
-
-const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
+const MaintenanceLogTable = () => {
   const [showMonths, setShowMonths] = useState(false);
   const [maintenanceData, setMaintenanceData] = useState<
     VehicleMaintenanceInfo[] | []
@@ -56,11 +44,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
           console.error("Failed to fetch vehicle-maintenance data");
           return;
         }
-        console.log(
-          "Maintenance Data: ",
-          response.filter((f) => f.liters !== null)
-        );
-        setMaintenanceData(response.filter((f) => f.liters !== null));
+        setMaintenanceData(response.filter((f) => f.liters === null));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -109,15 +93,15 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
 
   useEffect(() => {
     filterMonthData();
-  }, [selectedMonth]);
+  }, [selectedMonth, maintenanceData]);
 
   return (
     <div className="w-full relative">
       <div className="flex gap-4 overflow-x-auto py-2 mb-3">
         <PromptCard
-          title={"Total Fuel Logs"}
+          title={"Total Maintenance Logs"}
           info={String(filterData.length)}
-          description={"Fuel entries logged this month."}
+          description={"Maintenance entries logged this month."}
           icon={LuClipboardList}
           color={"blue"}
         />
@@ -131,11 +115,11 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
               }, 0)
               .toLocaleString()
           }
-          description={"Total fuel spending this month."}
+          description={"Total maintenance spending this month."}
           icon={LuWallet}
           color={"green"}
         />
-        <PromptCard
+        {/* <PromptCard
           title={"Total Liters"}
           info={
             filterData
@@ -147,7 +131,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
           description={"Liters refueled this month."}
           icon={LuFuel}
           color={"yellow"}
-        />
+        /> */}
       </div>
 
       {/* Month Selector */}
@@ -179,7 +163,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
         <div className="w-1/7 p-3">Time Stamp</div>
         <div className="w-1/7 p-3">Make & Model</div>
         <div className="w-1/7 p-3">KM Driven</div>
-        <div className="w-1/7 p-3">Liters</div>
+        <div className="w-1/7 p-3">Service/Repair</div>
         <div className="w-1/7 p-3">Cost (Rs)</div>
         <div className="w-1/7 p-3">Driver</div>
         <div className="w-1/7 p-3">Notes</div>
@@ -207,11 +191,8 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
           </div>
 
           <div className="flex lg:block justify-between lg:w-1/7 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Liters:</span>
-            {Number(fuel.liters).toLocaleString(undefined, {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            })}
+            <span className="lg:hidden font-medium">Service/Repair:</span>
+            {fuel.repairType || fuel.serviceType}
           </div>
 
           <div className="flex lg:block justify-between lg:w-1/7 p-3 text-sm text-gray-700">
@@ -238,4 +219,4 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
   );
 };
 
-export default FuelLogTable;
+export default MaintenanceLogTable;

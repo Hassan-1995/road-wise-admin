@@ -8,23 +8,9 @@ import { useEffect, useState } from "react";
 import { LuClipboardList, LuFuel, LuWallet } from "react-icons/lu";
 // import { MdCancel, MdCheckCircle } from "react-icons/md";
 
-type FuelLogTableProps = {
-  fuelInfo: {
-    id: number;
-    refuelingTime: Date;
-    makeModel: string;
-    meterReading: number;
-    liters: number;
-    name: string;
-    cost: number;
-  }[];
-};
-
-const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
+const FuelLogTable = () => {
   const [showMonths, setShowMonths] = useState(false);
-  const [maintenanceData, setMaintenanceData] = useState<
-    VehicleMaintenanceInfo[] | []
-  >([]);
+  const [fuelData, setFuelData] = useState<VehicleMaintenanceInfo[] | []>([]);
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth()
   );
@@ -60,7 +46,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
           "Maintenance Data: ",
           response.filter((f) => f.liters !== null)
         );
-        setMaintenanceData(response.filter((f) => f.liters !== null));
+        setFuelData(response.filter((f) => f.liters !== null));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -101,7 +87,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
   };
 
   const filterMonthData = () => {
-    const temp = maintenanceData.filter(
+    const temp = fuelData.filter(
       (f) => new Date(f.maintenanceDate).getMonth() === selectedMonth
     );
     setFilterData(temp);
@@ -109,7 +95,7 @@ const FuelLogTable = ({ fuelInfo }: FuelLogTableProps) => {
 
   useEffect(() => {
     filterMonthData();
-  }, [selectedMonth]);
+  }, [selectedMonth, fuelData]);
 
   return (
     <div className="w-full relative">
