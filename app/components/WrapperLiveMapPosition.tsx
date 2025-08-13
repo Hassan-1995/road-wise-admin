@@ -11,6 +11,16 @@ const LiveMapPositions = dynamic(() => import("./LiveMapPosition"), {
 
 const WrapperLiveMapPosition = () => {
   const [drivers, setDrivers] = useState<LiveTracker[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<LiveTracker | null>(
+    null
+  );
+  const [showDrivers, setShowDrivers] = useState(false);
+  const [pickPosition, setPickPosition] = useState<{
+    id: number;
+    name: string;
+    position: LatLngExpression;
+    status: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,14 +52,62 @@ const WrapperLiveMapPosition = () => {
     status: l.status,
   }));
 
+  const handleMonthSelect = (pickDriver: LiveTracker) => {
+    setSelectedDriver(pickDriver);
+    setShowDrivers(false);
+    const newPickPosition = {
+      id: pickDriver.id,
+      name: pickDriver.driverName,
+      position: [
+        parseFloat(pickDriver.latitude as unknown as string),
+        parseFloat(pickDriver.longitude as unknown as string),
+      ] as LatLngExpression,
+      status: pickDriver.status,
+    };
+
+    setPickPosition(newPickPosition);
+    console.log("Selected Driver:", pickPosition); // for debugging / further filtering logic
+  };
+
   console.log("Formatted Positions", formattedPositions);
+  console.log("Raw Data", drivers);
 
   if (loading) return <p>Loading live map...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   return (
-    // <div className="max-w-lg max-h-lvh">
-    <LiveMapPositions locations={formattedPositions} />
-    // </div>
+    <div className="h-screen flex flex-row">
+      <div className="w-[80%] h-[80vh] rounded-xl shadow overflow-hidden">
+        {/* <LiveMapPositions locations={[pickPosition] || formattedPositions} /> */}
+        <LiveMapPositions
+          locations={pickPosition ? [pickPosition] : formattedPositions}
+        />
+      </div>
+      <div className="w-[20%] h-[80vh] flex-1 flex-row overflow-hidden">
+        {/* Driver Selector */}
+        <div className="inline-block mb-4 w-[100%]">
+          <button
+            onClick={() => setShowDrivers(!showDrivers)}
+            className="cursor-pointer px-3 py-2 flex text-blue-900 font-semibold rounded-xl hover:underline underline-offset-[5px]"
+          >
+            Driver: {selectedDriver?.driverName || "All"}
+          </button>
+
+          {showDrivers && (
+            <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded shadow w-40 max-h-60 overflow-y-auto">
+              {drivers.map((driver, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleMonthSelect(driver)}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                >
+                  {driver.driverName}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

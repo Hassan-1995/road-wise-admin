@@ -15,6 +15,8 @@ import {
   FiX,
   FiSidebar,
 } from "react-icons/fi";
+import { GiSteeringWheel } from "react-icons/gi";
+import { FaRoute } from "react-icons/fa";
 
 const NavSideBar = () => {
   const [open, setOpen] = useState<boolean>(true);
@@ -31,14 +33,19 @@ const NavSideBar = () => {
       icon: <FiTruck />,
     },
     {
+      href: "/drivers",
+      label: "Drivers",
+      icon: <GiSteeringWheel />,
+    },
+    {
       href: "/live-tracking",
       label: "Live Tracking",
       icon: <FiMap />,
     },
     {
       href: "/driver-management",
-      label: "Driver Management",
-      icon: <FiUsers />,
+      label: "Trip Management",
+      icon: <FaRoute />,
     },
     {
       href: "/logs",
