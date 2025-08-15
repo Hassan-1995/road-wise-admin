@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdFemale, MdMale } from "react-icons/md";
 
-const Drivers = () => {
+const DriverOnHold = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +13,7 @@ const Drivers = () => {
     const fetchVehicles = async () => {
       try {
         const data = await getAllDriversInfo();
-        setDrivers(data.filter((f) => f.status === "Approved"));
+        setDrivers(data.filter((f) => f.status !== "Approved"));
         setError(null);
       } catch (err) {
         console.error("Error fetching vehicles:", err);
@@ -55,7 +55,7 @@ const Drivers = () => {
 
       {drivers.map((driver) => (
         <Link
-          href={`/drivers`}
+          href={`/drivers/add-driver/${driver.id}`}
           key={driver.id}
           className="w-full flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
         >
@@ -108,4 +108,4 @@ const Drivers = () => {
   );
 };
 
-export default Drivers;
+export default DriverOnHold;

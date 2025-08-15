@@ -12,6 +12,7 @@ export type Driver = {
   licenseNumber: string;
   dateOfBirth: string; // ISO string format
   createdAt: string; // ISO string format
+  status: string;
   name: string;
   phone: string;
   email: string;
