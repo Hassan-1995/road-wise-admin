@@ -27,3 +27,14 @@ export const getDriverById = async (id: number): Promise<Driver> => {
   const response = await axios.get<Driver[]>(`${BASE_URL}/api/driver/id/${id}`);
   return response.data[0];
 };
+
+export const updateDriverById = async (
+  id: number,
+  data: Partial<Driver>
+): Promise<Driver> => {
+  const response = await axios.put<Driver>(
+    `${BASE_URL}/api/driver/id/${id}`,
+    data
+  );
+  return response.data;
+};

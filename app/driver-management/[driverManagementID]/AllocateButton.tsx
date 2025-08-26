@@ -1,61 +1,11 @@
-// "use client";
-
-// import { Driver, User } from "@prisma/client";
-// import React from "react";
-
-// type DriverInfo = Driver & {
-//   user: Pick<User, "name">;
-// };
-
-// type AllocateButtonProps = {
-//   label?: string;
-//   vehicleId?: number; // pass data you want to save
-//   storeId?: number;
-//   driverInfo: DriverInfo | null;
-// };
-
-// const AllocateButton = ({
-//   label = "Allocate",
-//   driverInfo,
-// }: AllocateButtonProps) => {
-//   const handleClick = () => {
-//     const formattedData = {
-//       driverName: driverInfo?.user.name,
-//       driverID: driverInfo?.id,
-//       vehicleID: localStorage.getItem("Select Vehicle"),
-//       storeID: localStorage.getItem("Select Dropoff"),
-//     };
-//     console.log("Data to put: ", formattedData);
-//   };
-
-//   return (
-//     <button
-//       onClick={handleClick}
-//       className="cursor-pointer text-blue-900 hover:underline"
-//     >
-//       {label}
-//     </button>
-//   );
-// };
-
-// export default AllocateButton;
-
 "use client";
-
-import { Driver } from "@/app/apiFolder/driver";
+import { useState } from "react";
+import useLocalStorageState from "use-local-storage-state";
 import { assignDropoffs } from "@/app/apiFolder/droupout-assignment";
-import { User } from "@prisma/client";
-import React, { useState } from "react";
-
-type DriverInfo = Driver & {
-  user: Pick<User, "name">;
-};
+import { Driver } from "@/app/apiFolder/driver";
 
 type AllocateButtonProps = {
   label?: string;
-  vehicleId?: number; // pass data you want to save
-  storeId?: number;
-  // driverInfo: DriverInfo | null;
   driverInfo: Driver;
 };
 
@@ -65,6 +15,14 @@ const AllocateButton = ({
 }: AllocateButtonProps) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // ✅ use the hook for the refresh flag
+  const [, setRefreshDropoffs] = useLocalStorageState<number>(
+    "refreshDropoffs",
+    {
+      defaultValue: 0,
+    }
+  );
 
   const handleClick = async () => {
     const storeID = localStorage.getItem("Select Dropoff");
@@ -76,22 +34,25 @@ const AllocateButton = ({
       );
       return;
     }
-    const formattedData = {
-      tripId: Number(tripID),
-      storeId: Number(storeID),
-      driverId: Number(driverInfo?.id),
-    };
 
-    console.log("Data to put: ", formattedData);
     setLoading(true);
     setMessage(null);
 
     try {
+      const formattedData = {
+        tripId: Number(tripID),
+        storeId: Number(storeID),
+        driverId: Number(driverInfo.id),
+      };
+
       const response = await assignDropoffs(formattedData);
-      if (!response.success) {
-        throw new Error("Failed to assign dropoff.");
-      }
+      if (!response.success) throw new Error("Failed to assign dropoff.");
+
       setMessage("✅ Allocation successful.");
+
+      // 🔔 trigger re-fetch for DetailMessage (same-tab safe)
+      setRefreshDropoffs(Date.now());
+
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error(error);
@@ -109,11 +70,9 @@ const AllocateButton = ({
         className={`cursor-pointer px-4 py-2 rounded-md font-semibold transition duration-200 ${
           loading
             ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-            : // : "bg-blue-600 text-white hover:bg-blue-700"
-              "text-blue-900  hover:text-blue-700"
+            : "text-blue-900 hover:text-blue-700"
         }`}
       >
-        {/* <h1>{driverInfo?.id}</h1> */}
         {loading ? <span className="animate-pulse">Allocating...</span> : label}
       </button>
       {message && (

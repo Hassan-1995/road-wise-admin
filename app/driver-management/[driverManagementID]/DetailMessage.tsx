@@ -1,16 +1,13 @@
 "use client";
-import {
-  DropoutAssignment,
-  getDropoffsByTripID,
-} from "@/app/apiFolder/droupout-assignment";
-import { getVehicleByID, Vehicle } from "@/app/apiFolder/vehicle";
 import { useEffect, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
+import {
+  getDropoffsByTripID,
+  DropoutAssignment,
+} from "@/app/apiFolder/droupout-assignment";
+import { getVehicleByID, Vehicle } from "@/app/apiFolder/vehicle";
 
-type DetailMessageProps = {
-  driverName: string | undefined;
-};
-
+type DetailMessageProps = { driverName: string | undefined };
 
 const DetailMessage = ({ driverName }: DetailMessageProps) => {
   const [tripId] = useLocalStorageState<number | null>("currentTripId", {
@@ -20,46 +17,44 @@ const DetailMessage = ({ driverName }: DetailMessageProps) => {
     defaultValue: null,
   });
 
+  // ✅ listen to the same refresh flag
+  const [refreshDropoffs] = useLocalStorageState<number>("refreshDropoffs", {
+    defaultValue: 0,
+  });
+
   const [vehicleData, setVehicleData] = useState<Vehicle | null>(null);
   const [routeData, setRouteData] = useState<DropoutAssignment[] | null>(null);
 
+  // fetch vehicle when vehicleId changes
   useEffect(() => {
+    const fetchVehicle = async () => {
+      if (!vehicleId) return;
+      try {
+        const response = await getVehicleByID(Number(vehicleId));
+        if (!response) return;
+        setVehicleData(response);
+      } catch (e) {
+        console.error("Error fetching vehicle:", e);
+      }
+    };
     fetchVehicle();
+  }, [vehicleId]);
+
+  // fetch route when tripId changes OR refresh flag flips
+  useEffect(() => {
+    const fetchRoute = async () => {
+      if (!tripId) return;
+      try {
+        const response = await getDropoffsByTripID(Number(tripId));
+        setRouteData(response);
+      } catch (e) {
+        console.error("Error fetching route:", e);
+      }
+    };
     fetchRoute();
-  }, [vehicleId, tripId]);
+  }, [tripId, refreshDropoffs]); // 👈 re-fetch after allocation
 
-  const fetchVehicle = async () => {
-    if (!vehicleId) return;
-    try {
-      const response = await getVehicleByID(Number(vehicleId));
-
-      if (!response) {
-        console.error("Failed to fetch vehicle data");
-        return;
-      }
-      setVehicleData(response);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  const fetchRoute = async () => {
-    if (!tripId) return;
-    try {
-      const response = await getDropoffsByTripID(Number(tripId));
-
-      if (!response) {
-        console.error("Failed to fetch route data");
-        return;
-      }
-
-      // const data = await res.json();
-      console.log("Raw ROUTE: ", response);
-      setRouteData(response);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
+  // ...render UI (unchanged)
   return (
     <div className="mt-6 p-6 rounded-2xl border border-blue-900 bg-blue-50 shadow-sm max-w-xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4 mb-3">

@@ -22,11 +22,36 @@ export const assignDropoffs = async (
   return response.data;
 };
 
+// export const getDropoffsByTripID = async (
+//   tripID: number
+// ): Promise<DropoutAssignment[]> => {
+//   if (!tripID || tripID === 0) {
+//     return [];
+//   }
+
+//   const response = await axios.get<DropoutAssignment[]>(
+//     `${BASE_URL}/api/dropout-assignment/trip/${tripID}`
+//   );
+//   return response.data;
+// };
+
 export const getDropoffsByTripID = async (
   tripID: number
 ): Promise<DropoutAssignment[]> => {
-  const response = await axios.get<DropoutAssignment[]>(
-    `${BASE_URL}/api/dropout-assignment/trip/${tripID}`
-  );
-  return response.data;
+  if (!tripID || tripID === 0) {
+    return [];
+  }
+
+  try {
+    const response = await axios.get<DropoutAssignment[]>(
+      `${BASE_URL}/api/dropout-assignment/trip/${tripID}`
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      // No dropouts found for this trip
+      return [];
+    }
+    throw error; // rethrow other errors (500, 401, etc.)
+  }
 };
