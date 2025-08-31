@@ -27,3 +27,14 @@ export const getVehicleByID = async (vehicleID: number): Promise<Vehicle> => {
   );
   return response.data[0];
 };
+
+export const updateAssignedDriver = async (
+  vehicleID: number,
+  assignedDriverId: number
+): Promise<Vehicle> => {
+  const response = await axios.put<Vehicle>(
+    `${BASE_URL}/api/vehicle/id/${vehicleID}/assign-driver`,
+    { assignedDriverId }
+  );
+  return response.data;
+};

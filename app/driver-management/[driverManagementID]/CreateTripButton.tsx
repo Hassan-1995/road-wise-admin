@@ -77,6 +77,7 @@
 "use client";
 
 import { createTrip } from "@/app/apiFolder/trip";
+import { updateAssignedDriver } from "@/app/apiFolder/vehicle";
 import { useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
@@ -119,8 +120,10 @@ const CreateTripButton = ({
         driverId: Number(driverID),
         vehicleId: Number(vehicleID),
       };
+      await updateAssignedDriver(newTrip.vehicleId, newTrip.driverId);
       const response = await createTrip(newTrip);
 
+      // if (!response.success ) {
       if (!response.success) {
         throw new Error("Failed to create trip.");
       }
