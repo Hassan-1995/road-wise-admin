@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavSideBar from "./NavSideBar";
+import { AuthProvider } from "@/context/AuthProvider";
+import ProtectedRoute from "@/context/ProtectedRoutes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,10 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <nav>
-          <NavSideBar />
-        </nav>
-        <main className="ml-[15%] md:ml-[10%] lg:ml-[5%]">{children}</main>
+        <AuthProvider>
+          <ProtectedRoute>
+            <nav>
+              <NavSideBar />
+            </nav>
+            <main className="ml-[15%] md:ml-[10%] lg:ml-[5%]">{children}</main>
+          </ProtectedRoute>
+        </AuthProvider>
       </body>
     </html>
   );

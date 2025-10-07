@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   FiHome,
@@ -14,18 +14,28 @@ import {
   FiSettings,
   FiX,
   FiSidebar,
+  FiLogOut,
 } from "react-icons/fi";
 import { GiSteeringWheel } from "react-icons/gi";
 import { FaRoute } from "react-icons/fa";
+// import { icon } from "leaflet";
+import { useAuth } from "@/context/AuthProvider";
 
 const NavSideBar = () => {
   const [open, setOpen] = useState<boolean>(true);
   const pathName = usePathname();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const links = [
     {
       href: "/",
       label: "Dashboard",
       icon: <FiHome />,
+    },
+    {
+      href: "/users",
+      label: "Users",
+      icon: <FiUsers />,
     },
     {
       href: "/vehicles",
@@ -69,8 +79,9 @@ const NavSideBar = () => {
     },
   ];
   console.log("Path Name: ", pathName);
+  console.log("Role: ", user?.role);
   return (
-    <>
+    <div className={`${pathName === "/AuthPage" && "hidden"}`}>
       <div
         className={`h-screen w-full md:w-2/3 lg:w-1/3 bg-white border-r border-gray-200 flex flex-col fixed z-[1100]
         transform transition-transform duration-700 
@@ -88,16 +99,27 @@ const NavSideBar = () => {
               height={100}
               className="boder-2 border-blue-950"
             />
+            {user && <p className="text-xl">Welcome {user.name}</p>}
+
             {/* Road Wise */}
           </>
           {open ? <FiSidebar /> : <FiX />}
         </button>
 
         <nav className="flex-1 px-4 space-y-2">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} passHref>
-              <div
-                className={`flex items-center px-4 py-2 rounded-lg cursor-pointer hover:text-indigo-500 transition
+          {links
+            .filter((link) => {
+              // Hide "Users" link unless role is "admin"
+              if (link.href === "/users" && user?.role !== "admin") {
+                return false;
+              }
+              return true;
+            })
+
+            .map((link) => (
+              <Link key={link.href} href={link.href} passHref>
+                <div
+                  className={`flex items-center px-4 py-2 rounded-lg cursor-pointer hover:text-indigo-500 transition
           ${
             pathName === link.href
               ? "text-blue-600 font-semibold"
@@ -105,15 +127,32 @@ const NavSideBar = () => {
           }
           ${open ? "justify-end py-3" : "space-x-3"}
         `}
-              >
-                <span className="text-lg">{link.icon}</span>
-                {!open && <span>{link.label}</span>}
-              </div>
-            </Link>
-          ))}
+                >
+                  <span className="text-lg">{link.icon}</span>
+                  {!open && <span>{link.label}</span>}
+                </div>
+              </Link>
+            ))}
         </nav>
+
+        <div className="px-4 py-4 mt-auto border-t border-gray-200">
+          <button
+            // onClick={logout}
+            onClick={() => {
+              logout(); // clear session/auth
+              router.push("/AuthPage"); // 👈 redirect to login page
+            }}
+            // className={`flex items-center space-x-2 text-red-600 hover:text-red-800 w-full ${open ? "justify-end py-3" : "space-x-3"}`}
+            className={`cursor-pointer flex items-center px-4 text-gray-700 hover:text-blue-700 w-full ${
+              open ? "justify-end py-3" : "space-x-3"
+            }`}
+          >
+            <FiLogOut className="text-lg" />
+            {!open && <span>Logout</span>}
+          </button>
+        </div>
         <div className="px-4 py-4 text-sm text-gray-400 mt-auto">
-          © {new Date().getFullYear()} InkSpire
+          © {new Date().getFullYear()} Road Wise
         </div>
       </div>
 
@@ -123,7 +162,7 @@ const NavSideBar = () => {
           className="fixed inset-0 bg-gray-500/50  z-[1050] transition-opacity duration-300"
         />
       )}
-    </>
+    </div>
   );
 };
 
