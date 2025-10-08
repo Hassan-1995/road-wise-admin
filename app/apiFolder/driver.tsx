@@ -18,8 +18,13 @@ export type Driver = {
   email: string;
 };
 
-export const getAllDriversInfo = async (): Promise<Driver[]> => {
-  const response = await axios.get<Driver[]>(`${BASE_URL}/api/driver`);
+export const getAllDriversInfo = async (
+  role: string,
+  id: number
+): Promise<Driver[]> => {
+  const response = await axios.get<Driver[]>(
+    `${BASE_URL}/api/driver/${role}/${id}`
+  );
   return response.data;
 };
 

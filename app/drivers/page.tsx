@@ -2,6 +2,7 @@ import Link from "next/link";
 import Drivers from "./component/Drivers";
 
 const DriversPage = async () => {
+
   return (
     <div className="p-4">
       <div className="flex flex-row justify-between items-center">

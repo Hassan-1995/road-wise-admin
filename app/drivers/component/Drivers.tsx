@@ -1,5 +1,6 @@
 "use client";
 import { Driver, getAllDriversInfo } from "@/app/apiFolder/driver";
+import { useAuth } from "@/context/AuthProvider";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdFemale, MdMale } from "react-icons/md";
@@ -9,10 +10,14 @@ const Drivers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { user } = useAuth();
   useEffect(() => {
-    const fetchVehicles = async () => {
+    const fetchDrivers = async () => {
+      if (!user) {
+        return;
+      }
       try {
-        const data = await getAllDriversInfo();
+        const data = await getAllDriversInfo(user.role, user.id);
         setDrivers(data.filter((f) => f.status === "Approved"));
         setError(null);
       } catch (err) {
@@ -23,7 +28,7 @@ const Drivers = () => {
       }
     };
 
-    fetchVehicles();
+    fetchDrivers();
   }, []);
 
   const getGenderIcon = (gender: string | null) => {
