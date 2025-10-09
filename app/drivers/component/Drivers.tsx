@@ -1,113 +1,137 @@
 "use client";
-import { Driver, getAllDriversInfo } from "@/app/apiFolder/driver";
-import { useAuth } from "@/context/AuthProvider";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiEdit2,
+  FiRefreshCw,
+  FiTrash2,
+  FiXCircle,
+} from "react-icons/fi";
 import { MdFemale, MdMale } from "react-icons/md";
+import { useAuth } from "@/context/AuthProvider";
+import {
+  deleteDriverById,
+  Driver,
+  getAllDriversInfo,
+} from "@/app/apiFolder/driver";
 
 const Drivers = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const { user } = useAuth();
+
+  // 🔹 Fetch drivers
   useEffect(() => {
     const fetchDrivers = async () => {
-      if (!user) {
-        return;
-      }
+      if (!user) return;
+      setLoading(true);
       try {
         const data = await getAllDriversInfo(user.role, user.id);
-        setDrivers(data.filter((f) => f.status === "Approved"));
+        setDrivers(data);
         setError(null);
       } catch (err) {
-        console.error("Error fetching vehicles:", err);
-        setError("Failed to load vehicles data.");
+        console.error("Error fetching drivers:", err);
+        setError("Failed to load driver data.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchDrivers();
+  }, [user]);
+
+  // 🔹 Gender Icon Memoized
+  const getStatusIcon = useMemo(
+    () => (status: string | null) => {
+      switch (status) {
+        case "Approved":
+          return <FiCheckCircle className="text-green-500 w-5 h-5" />;
+        case "Pending":
+          return <FiClock className="text-yellow-500 w-5 h-5" />;
+        case "Ongoing":
+          return (
+            <FiRefreshCw className="text-blue-500 w-5 h-5 animate-spin-slow" />
+          );
+        case "Cancelled":
+          return <FiXCircle className="text-red-500 w-5 h-5" />;
+        default:
+          return <span className="text-gray-400">N/A</span>;
+      }
+    },
+    []
+  );
+
+  // 🔹 Delete Handler
+  const handleDelete = useCallback(async (id: number) => {
+    if (!confirm("Are you sure you want to delete this driver?")) return;
+    try {
+      await deleteDriverById(id);
+      setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+    } catch (err) {
+      console.error("Error deleting driver:", err);
+      alert("Failed to delete driver.");
+    }
   }, []);
 
-  const getGenderIcon = (gender: string | null) => {
-    switch (gender) {
-      case "Male":
-        return <MdMale className="text-blue-500 w-5 h-5" />;
-      case "Female":
-        return <MdFemale className="text-pink-500 w-5 h-5" />;
-
-      default:
-        return <h1>N/A</h1>;
-    }
-  };
+  // 🔹 Loading & Error UI
   if (loading) return <p className="p-4 text-gray-600">Loading drivers...</p>;
   if (error) return <p className="p-4 text-red-600">{error}</p>;
 
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="hidden lg:flex w-full bg-gray-100 border-b border-zinc-300 font-semibold text-sm">
-        <div className="w-1/8 p-3">Name</div>
-        <div className="w-1/12 p-3">Gender</div>
-        <div className="w-1/8 p-3">Phone</div>
-        <div className="w-2/10 p-3">Email</div>
-        <div className="w-1/8 p-3">CNIC Number</div>
-        <div className="w-1/4 p-3">Residence</div>
-        <div className="w-1/8 p-3">DoB</div>
+      <div className="hidden lg:flex bg-gray-100 border-b border-zinc-300 font-semibold text-sm">
+        {["Name", "Phone", "Email", "CNIC Number", "Status", "Action"].map(
+          (header, idx) => (
+            <div key={idx} className="flex-1 p-3 min-w-[100px]">
+              {header}
+            </div>
+          )
+        )}
       </div>
 
+      {/* Driver Rows */}
       {drivers.map((driver) => (
-        <Link
-          href={`/drivers`}
+        <div
           key={driver.id}
-          className="w-full flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
+          className="flex flex-col lg:flex-row border-b border-zinc-200 hover:bg-gray-50 transition-colors"
         >
-          {/* Driver Name */}
-          <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Driver Name: </span>
-            {driver.name}
+          <div className="flex-1 p-3 text-sm text-gray-700">{driver.name}</div>
+
+          <div className="flex-1 p-3 text-sm text-gray-700">
+            {driver.contactNumber ?? "N/A"}
+          </div>
+          <div className="flex-1 p-3 text-sm text-gray-700">
+            {driver.email ?? "N/A"}
+          </div>
+          <div className="flex-1 p-3 text-sm text-gray-700">
+            {driver.cnicNumber ?? "N/A"}
           </div>
 
-          {/* Driver Gender */}
-          <div className="flex lg:block justify-between lg:w-1/12 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Gender: </span>
-            {getGenderIcon(driver.gender)}
+          <div className="flex-1 p-3 text-sm text-gray-700">
+            {getStatusIcon(driver.status!)}
           </div>
-
-          {/* Driver Phone */}
-          <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Contact: </span>
-            {driver.phone}
+          <div className="flex-1 p-3 text-sm text-gray-700">
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleDelete(driver.id!)}
+                className="cursor-pointer text-red-500 hover:text-red-700 transition-transform hover:scale-110"
+                title="Delete Driver"
+              >
+                <FiTrash2 size={18} />
+              </button>
+              <Link
+                href={`/drivers/update-driver/${driver.id}`}
+                className="text-blue-500 hover:text-blue-700 transition-transform hover:scale-110"
+                title="Edit Driver"
+              >
+                <FiEdit2 size={18} />
+              </Link>
+            </div>
           </div>
-
-          {/* Driver Email */}
-          <div className="flex lg:block justify-between lg:w-2/10 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Email: </span>
-            {driver.email}
-          </div>
-
-          {/* Driver CNIC */}
-          <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">CNIC:</span>
-            {driver.cnicNumber}
-          </div>
-
-          {/* Driver Residence */}
-          <div className="flex lg:block justify-between lg:w-1/4 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">Residence:</span>
-            {driver.residenceArea}
-          </div>
-
-          {/* Driver DoB */}
-          <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">DoB:</span>
-            {driver.dateOfBirth
-              ? new Date(driver.dateOfBirth).toLocaleDateString()
-              : ""}
-          </div>
-        </Link>
+        </div>
       ))}
     </div>
   );
