@@ -55,7 +55,7 @@ const Drivers = () => {
         <div className="w-2/10 p-3">Email</div>
         <div className="w-1/8 p-3">CNIC Number</div>
         <div className="w-1/4 p-3">Residence</div>
-        <div className="w-1/8 p-3">DoB</div>
+        <div className="w-1/8 p-3">License Number</div>
       </div>
 
       {drivers.map((driver) => (
@@ -79,7 +79,7 @@ const Drivers = () => {
           {/* Driver Phone */}
           <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
             <span className="lg:hidden font-medium">Contact: </span>
-            {driver.phone}
+            {driver.contactNumber}
           </div>
 
           {/* Driver Email */}
@@ -102,10 +102,11 @@ const Drivers = () => {
 
           {/* Driver DoB */}
           <div className="flex lg:block justify-between lg:w-1/8 p-3 text-sm text-gray-700">
-            <span className="lg:hidden font-medium">DoB:</span>
-            {driver.dateOfBirth
+            <span className="lg:hidden font-medium">License #:</span>
+            {/* {driver.dateOfBirth
               ? new Date(driver.dateOfBirth).toLocaleDateString()
-              : ""}
+              : ""} */}
+            {driver.licenseNumber}
           </div>
         </Link>
       ))}

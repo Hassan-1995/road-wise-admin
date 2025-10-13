@@ -66,11 +66,17 @@ export const deleteVehicleByID = async (
 
 export const updateAssignedDriver = async (
   vehicleID: number,
-  assignedDriverId: number
+  assignedDriverId: number,
+  createdById: number,
+  createdByRole: string
 ): Promise<Vehicle> => {
   const response = await axios.put<Vehicle>(
     `${BASE_URL}/api/vehicle/id/${vehicleID}/assign-driver`,
-    { assignedDriverId }
+    {
+      assignedDriverId,
+      createdById,
+      createdByRole,
+    }
   );
   return response.data;
 };

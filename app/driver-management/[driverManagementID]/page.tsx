@@ -8,6 +8,7 @@ import DetailMessage from "./DetailMessage";
 import { getAllVehiclesInfo } from "@/app/apiFolder/vehicle";
 import { getAllStoresInfo } from "@/app/apiFolder/store";
 import { getDriverById, Driver } from "@/app/apiFolder/driver";
+import DropDownVehicles from "../component/DropDownVehicles";
 
 type Props = {
   params: {
@@ -20,7 +21,7 @@ const DriverTripAllocation = async ({ params }: Props) => {
 
   try {
     const [vehicles, stores, driverInfo] = await Promise.all([
-      getAllVehiclesInfo(),
+      getAllVehiclesInfo("sub_admin", 40),
       getAllStoresInfo(),
       getDriverById(driverID),
     ]);
@@ -66,7 +67,8 @@ const DriverTripAllocation = async ({ params }: Props) => {
 
         <section className="w-full flex mb-10">
           <div className="w-[60%] grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <DropDown options={formattedVehicles} label="Select Vehicle" />
+            {/* <DropDown options={formattedVehicles} label="Select Vehicle" /> */}
+            <DropDownVehicles />
             <div className="flex md:justify-end sm:justify-start items-end">
               <CreateTripButton driverID={driverInfo?.id} />
             </div>
